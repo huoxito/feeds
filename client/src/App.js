@@ -23,7 +23,7 @@ class App extends Component {
       .then(body => {
         this.setState({ events: body })
         const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
-        wait(20000).then(() => this.fetchEvents())
+        wait(10000).then(() => this.fetchEvents())
       })
   }
 

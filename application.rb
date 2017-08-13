@@ -3,7 +3,16 @@
 require 'json'
 require 'octokit'
 require 'sinatra'
+require 'faraday-http-cache' # https://github.com/octokit/octokit.rb#caching
 require 'dotenv/load'
+
+stack = Faraday::RackBuilder.new do |builder|
+  builder.use Faraday::HttpCache, serializer: Marshal, shared_cache: false
+  builder.use Octokit::Response::RaiseError
+  builder.adapter Faraday.default_adapter
+end
+
+Octokit.middleware = stack
 
 client = Octokit::Client.new access_token: ENV['GITHUB_TOKEN']
 
@@ -15,6 +24,7 @@ end
 get '/feeds/' do
   content_type :json
   events = client.received_events 'huoxito'
+  # puts client.last_response.headers[:etag]
   events.map(&:to_h).to_json
 end
 
