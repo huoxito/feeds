@@ -1,22 +1,42 @@
-@import 'tachyons';
-
-.App {
-  text-align: left;
+pre {
+  overflow: auto;
+  background-color: #f6f8fa;
+  padding: inherit;
+  padding: 2%;
+  font-size: 80%;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 30px;
+.pre {
+  overflow: auto;
+  background-color: #f6f8fa;
+  padding: 1%;
+  font-size: 80%;
 }
 
-.App-header {
-  background-color: #222;
-  height: auto;
-  padding: 10px 5px 5px 20px;
-  color: white;
+p {
+  overflow: auto
 }
 
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+p > code {
+  font-size: 85%;
+}
+
+.highlight {
+  animation-duration: 20s;
+  animation-name: fadein;
+  /*
+   * background-color: #eaf5ff;
+   * -webkit-transition: background-color 2s, -webkit-transform 2s;
+   * transition: background-color 4s, transform 4s;
+   */
+}
+
+@keyframes fadein {
+  from {
+    background-color: #eaf5ff;
+  }
+
+  to {
+    background-color: #fff;
+  }
 }

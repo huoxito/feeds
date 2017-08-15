@@ -14,38 +14,44 @@ end
 
 Octokit.middleware = stack
 
-client = Octokit::Client.new access_token: ENV['GITHUB_TOKEN']
+ApiClient = Octokit::Client.new access_token: ENV['GITHUB_TOKEN']
+
+#
+class Feeds
+  class << self
+    def call(action, arg)
+      events = ApiClient.send(action, arg)
+      # puts client.last_response.headers[:etag]
+      events.map(&:to_h).to_json
+    end
+  end
+end
+
+before do
+  content_type :json
+end
+
+error Octokit::NotFound do
+  status 404
+end
+
+error Faraday::ConnectionFailed do
+  status 500
+  { error: env['sinatra.error'].message }.to_json
+end
 
 get '/limits' do
-  content_type :json
-  client.rate_limit.to_json
+  ApiClient.rate_limit.to_json
 end
 
 get '/feeds/' do
-  content_type :json
-  events = client.received_events 'huoxito'
-  # puts client.last_response.headers[:etag]
-  events.map(&:to_h).to_json
+  Feeds.call 'received_events', 'huoxito'
 end
 
 get '/feeds/:org' do
-  content_type :json
-
-  begin
-    events = client.organization_public_events params[:org]
-    events.map(&:to_h).to_json
-  rescue Octokit::NotFound
-    status 404
-  end
+  Feeds.call 'organization_public_events', params[:org]
 end
 
 get '/feeds/:org/private' do
-  content_type :json
-
-  begin
-    events = client.organization_events params[:org]
-    events.map(&:to_h).to_json
-  rescue Octokit::NotFound
-    status 404
-  end
+  Feeds.call 'organization_events', params[:org]
 end

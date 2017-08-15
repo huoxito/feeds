@@ -1,118 +1,104 @@
 import React from 'react'
-import Marker from 'marked'
-
-const Summary = ({ events, link }) =>
-  <a className='db ph0-l no-underline black dim' href={link} target='_blank'>
-    <p className='f6 lh-copy mv0'>
-      {events.type} {events.payload.action} {events.repo.name} {events.created_at}
-    </p>
-  </a>
-
-const Avatar = ({ actor }) =>
-  <div className='mb4 mb0-ns ph3'>
-    <img src={actor.avatar_url}
-         className='br4 h2 w2 dib'
-         alt={actor.login} title={actor.login} />
-  </div>
-
-const Header = ({ title }) =>
-  <h1 className='f4 fw1 baskerville mt0 lh-title'>{title}</h1>
+import {
+  Summary,
+  Avatar,
+  richContent,
+  Header
+} from './Utils'
 
 const PushEvent = ({ events }) => {
-  return (
-    <div className='flex flex-column flex-row-ns'>
-      <div className='w-100 w-90-ns'>
-        <Summary events={events} />
+  const commitLine = events => {
+    const classes = 'pre fw2 mt2 mb1 lh-copy'
+    if (events.payload.size < 2) {
+      const commit = events.payload.commits[0]
 
-        <h1 className='f4 fw1 baskerville mt0 lh-title'>
-          {events.actor.login} pushed to {events.payload.ref}
-        </h1>
-        <p className='f6 f5-l lh-copy' dangerouslySetInnerHTML={{__html: events.payload.commits.map((commit) => `${commit.sha.substr(0, 8)} ${commit.message}`)}} />
-      </div>
-    </div>
-  )
-}
-
-const CreateEvent = ({ events }) => {
-  return (
-    <div className='flex flex-column flex-row-ns'>
-      <div className='w-100 w-90-ns'>
-        <p className='f6 f5-l mv0 lh-copy'>
-          {events.actor.login} created
-          {events.payload.ref} at {events.repo.name}
+      return (
+        <p className={classes}>
+          <a href={`https://github.com/${events.repo.name}/commit/${commit.sha}`}
+            className='link blue'>
+            {commit.sha.substr(0, 8)}
+          </a> {commit.message.split('\n')[0].substr(0, 50)}
         </p>
-      </div>
-    </div>
-  )
+      )
+    } else {
+      const oldHead = events.payload.before
+      const head = events.payload.head
+      const commit = events.payload.commits[events.payload.size - 1]
+
+      return (
+        <p className={classes}>
+          <a href={`https://github.com/${events.repo.name}/compare/${oldHead}...${head}`}
+            className='link blue'>
+            {oldHead.substr(0, 8)}...{head.substr(0, 8)}
+          </a> {commit && commit.message.split('\n')[0].substr(0, 50)}
+        </p>
+      )
+    }
+  }
+
+  return events.payload.commits.length > 0 && commitLine(events)
 }
 
-const IssueCommentEvent = ({ events }) => {
-  return (
-      <div className='flex flex-column flex-row-ns'>
-        <Avatar actor={events.actor} />
+const IssueCommentEvent = ({ events }) =>
+  <section>
+    {richContent(events.payload.comment.body)}
+  </section>
 
-        <div className='w-100 w-90-ns'>
-          <Summary events={events} link={events.payload.comment.html_url} />
-          <Header title={events.payload.issue.title} />
+const PullRequestReviewCommentEvent = ({ events }) =>
+  <section>
+    {richContent(events.payload.comment.body)}
+  </section>
 
-          <p className='f6 f5-l lh-copy' dangerouslySetInnerHTML={{__html: Marker(events.payload.comment.body)}} />
-        </div>
-      </div>
-  )
-}
-
-const PullRequestReviewCommentEvent = ({ events }) => {
-  return (
-    <div className='flex flex-column flex-row-ns'>
-      <Avatar actor={events.actor} />
-
-      <div className='w-100 w-90-ns'>
-        <Summary events={events} link={events.payload.comment.html_url} />
-        <Header title={events.payload.pull_request.title} />
-
-        <p className='f6 f5-l lh-copy' dangerouslySetInnerHTML={{__html: Marker(events.payload.comment.body)}} />
-
-      </div>
-    </div>
-  )
-}
-
-// this is for open and closing PRs
 const PullRequestEvent = ({ events }) => {
+  const mergedLine = ({ commits, additions, deletions, changed_files }) =>
+    <p className='pre fw2 lh-copy mv0'>
+      {commits} commits with {additions} additions {deletions} deletions
+      and {changed_files} changed files
+    </p>
+
   return (
-    <div className='flex flex-column flex-row-ns'>
-      <Avatar actor={events.actor} />
+    <section>
+      <Header title={events.payload.pull_request.title} />
 
-      <div className='w-100 w-90-ns'>
-        <Summary events={events} link={events.payload.pull_request.html_url} />
-        <Header title={events.payload.pull_request.title} />
-
-        <p className='f6 f5-l lh-copy' dangerouslySetInnerHTML={{__html: Marker(events.payload.pull_request.body)}} />
-      </div>
-    </div>
+      {events.payload.pull_request.merged &&
+        mergedLine(events.payload.pull_request)}
+      {!events.payload.pull_request.merged &&
+          events.payload.pull_request.state !== 'closed' &&
+          richContent(events.payload.pull_request.body)}
+    </section>
   )
 }
 
-const IssuesEvent = ({ events }) => {
-  return (
-    <div className='flex flex-column flex-row-ns'>
-      <Avatar actor={events.actor} />
+const IssuesEvent = ({ events }) =>
+  <section>
+    <Header title={events.payload.issue.title} />
 
-      <div className='w-100 w-90-ns'>
-        <Summary events={events} />
-        <Header title={events.payload.issue.title} />
+    {events.payload.action === 'opened' && richContent(events.payload.issue.body)}
+  </section>
 
-        <p className='f6 f5-l lh-copy' dangerouslySetInnerHTML={{__html: Marker(events.payload.issue.body)}} />
-      </div>
-    </div>
-  )
-}
-
-export default {
-  PullRequestEvent,
+const customs = {
   PushEvent,
-  CreateEvent,
   IssuesEvent,
   IssueCommentEvent,
+  PullRequestEvent,
   PullRequestReviewCommentEvent
-};
+}
+
+const Events = props => {
+  const Event = customs[props.events.type]
+
+  return (
+    <article className='mw-100 bt pv3 ph2 bb b--black-10'>
+      <div className='flex flex-column flex-row-ns'>
+        <Avatar actor={props.events.actor} />
+
+        <div className='w-100 w-90-ns'>
+          <Summary {...props} />
+          {Event && <Event {...props} />}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+export default Events
