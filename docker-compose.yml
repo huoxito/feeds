@@ -1,0 +1,19 @@
+version: '3'
+services:
+  web:
+    image: nginx
+    ports: 
+      - 3030:80
+    links:
+      - app
+    volumes:
+      - "./default.conf:/etc/nginx/conf.d/default.conf"
+      - "./client/build:/usr/share/nginx/html"
+  app:
+    build: .
+    ports:
+      - 4567:4567
+    env_file: .env
+    volumes:
+      - "./application.rb:/app/application.rb"
+    command: './application.rb'

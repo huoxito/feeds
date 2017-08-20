@@ -1,5 +1,17 @@
 # GITHUB FEEDS
 
+### Running production mode
+
+Build assets on host machine then start containers
+
+```
+cd client
+yarn build
+docker-compose up
+```
+
+### backlogs
+
 - ~~Accept org name via url param~~
 - ~~Auto reload feed~~
 - ~~Wrap up basic event formatting~~
