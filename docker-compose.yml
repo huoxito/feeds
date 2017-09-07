@@ -7,13 +7,19 @@ services:
     links:
       - app
     volumes:
-      - "./default.conf:/etc/nginx/conf.d/default.conf"
-      - "./client/build:/usr/share/nginx/html"
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+      - assets:/usr/share/nginx/html
+  client:
+    build: ./client
+    volumes:
+      - assets:/app/build
   app:
     build: .
     ports:
       - 4567:4567
     env_file: .env
     volumes:
-      - "./application.rb:/app/application.rb"
+      - ./application.rb:/app/application.rb
     command: './application.rb'
+volumes:
+  assets:

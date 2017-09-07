@@ -1,6 +1,6 @@
 FROM ruby:latest
 
-MAINTAINER Washington L Braga Jr, huoxito@gmail.com
+LABEL maintainer="Washington L Braga Jr, huoxito@gmail.com"
 
 WORKDIR /app
 
