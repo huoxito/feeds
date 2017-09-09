@@ -21,6 +21,7 @@ docker-compose up
 
 ---
 
+- Filter by repository
 - '.' (dot) focus on first even. And 'j' / 'k' could be used to navigate elements
 - CommitCommentEvent is pretty common. Handle it
 - Not displaying errors on undefined? wtf

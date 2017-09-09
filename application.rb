@@ -30,6 +30,8 @@ class Feeds
   end
 end
 
+set :public_folder, File.dirname(__FILE__) + '/client/build/'
+
 before do
   content_type :json
 end
@@ -41,6 +43,11 @@ end
 error Faraday::ConnectionFailed do
   status 500
   { error: env['sinatra.error'].message }.to_json
+end
+
+get '/' do
+  content_type :html
+  send_file 'client/build/index.html'
 end
 
 get '/limits' do
