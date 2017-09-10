@@ -110,7 +110,7 @@ class App extends Component {
     console.log(`rendering .. ${new Date()}`)
     return (
       <section className='mw7 pl3 helvetica'>
-        <h2 className='fw1 mt2 mb2 ph2'>
+        <header className='relative mt2 mb2 ph2 h-100'>
           <a href='/'>
             <img src={this.orgAvatar()}
               title='github feeds'
@@ -121,7 +121,11 @@ class App extends Component {
             className='link black'>
             {this.orgName}
           </a>
-        </h2>
+
+          <span className='dbi f7 fw1 absolute bottom-0 right-0'>
+            listing {this.state.collection.length} events
+          </span>
+        </header>
 
         {this.state.error && <ErrorBanner message={this.state.error} />}
 

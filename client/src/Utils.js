@@ -78,7 +78,7 @@ const BranchLink = ({ events }) => {
 
 const Summary = ({ events, justLoaded }) => {
   return (
-    <p className={`fw4 f6 lh-copy mv0 ${justLoaded && 'highlight'}`}>
+    <div className={`relative fw4 f6 lh-copy mv0 ${justLoaded && 'highlight'}`}>
       {eventAction(events)}
       {events.type === 'PushEvent' && <BranchLink events={events} />}
       {events.type === 'PushEvent' && ' at '}
@@ -96,7 +96,15 @@ const Summary = ({ events, justLoaded }) => {
       <a title={linkTitle(events)} className='link blue' href={linkHref(events)}>
         {linkName(events)}
       </a> {timeFromNow(events.created_at)}
-    </p>
+
+      <div className='absolute right-0 top-0 f7 fw4'>
+        <a className='link blue' href={`/${events.repo.name.split('/')[0]}`}>
+          org
+        </a> | <a className='link blue' href={`/${events.repo.name}`}>
+          repo
+        </a>
+      </div>
+    </div>
   )
 }
 
