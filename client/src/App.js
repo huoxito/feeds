@@ -13,30 +13,29 @@ const EventsList = ({ list, newIds }) => {
   return <div>{events}</div>
 }
 
-const OrgNotFoundError = message => {
-  return { message: message, name: 'OrgNotFoundError' }
-}
+class OrgNotFoundError extends Error {}
 
 class App extends Component {
   constructor (props) {
     super(props)
     this.state = { collection: [], error: null, newIds: [] }
 
-    this.orgName = window.location.pathname.substr(1).replace('/private', '')
+    const args = window.location.pathname.split('/').filter(e => e)
+    this.feedsPath = (args.length > 0 && `/${args.join('/')}`) || ''
+    this.orgName = args[0]
     this.updatePageTitle()
     this.fetchEvents()
   }
 
   fetchEvents () {
-    const orgName = window.location.pathname
-    return fetch(`/feeds${orgName}`)
+    return fetch(`/feeds${this.feedsPath}`)
       .then(response => {
         if (response.ok && response.status === 200) {
           if (this.state.error) { this.setState({ error: null }) }
         }
 
         if (response.status === 404) {
-          throw new OrgNotFoundError(`Org ${this.orgName} not found`)
+          throw new OrgNotFoundError(`${this.feedsPath.substr(1)} not found`)
         }
 
         if (response.status === 500) {
@@ -52,14 +51,14 @@ class App extends Component {
           this.updateEventsAndEnqueue(body)
         }
       })
-      .catch(OrgNotFoundError, error => {
-        this.setState({ error: error.message })
-      })
       .catch(error => {
-        const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
-        wait(60000).then(() => this.fetchEvents())
-        console.log('------------')
-        console.log(`enqueued at ${new Date()} after error: ${error.message}`)
+        if (error instanceof OrgNotFoundError) {
+        } else {
+          const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
+          wait(60000).then(() => this.fetchEvents())
+          console.log('------------')
+          console.log(`enqueued at ${new Date()} after error: ${error.message}`)
+        }
 
         this.setState({ error: error.message })
       })
@@ -93,14 +92,14 @@ class App extends Component {
   }
 
   updatePageTitle (update) {
-    const title = `${this.orgName} feeds at github`
-    const prefix = (update && `(${update})`) || ''
-    document.title = `${prefix} ${title}`
+    const title = `${this.orgName || 'user'} feeds at github`
+    const prefix = (update && `(${update}) `) || ''
+    document.title = `${prefix}${title}`
   }
 
   orgAvatar () {
-    if (this.orgName) {
-      return this.state.collection[0] && this.state.collection[0].org.avatar_url
+    if (this.orgName && this.state.collection[0]) {
+      return this.state.collection[0].org.avatar_url
     }
 
     return githubLogo
@@ -125,6 +124,7 @@ class App extends Component {
         </h2>
 
         {this.state.error && <ErrorBanner message={this.state.error} />}
+
         {this.state.collection && <EventsList list={this.state.collection}
           newIds={this.state.newIds} />}
       </section>

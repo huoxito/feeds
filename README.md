@@ -21,7 +21,7 @@ docker-compose up
 
 ---
 
-- Filter by repository
+- 8s timeout to api calls
 - '.' (dot) focus on first even. And 'j' / 'k' could be used to navigate elements
 - CommitCommentEvent is pretty common. Handle it
 - Not displaying errors on undefined? wtf

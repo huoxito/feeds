@@ -54,14 +54,18 @@ get '/limits' do
   ApiClient.rate_limit.to_json
 end
 
-get '/feeds/' do
-  Feeds.call 'received_events', 'huoxito'
+get '/feeds/:org-p' do
+  Feeds.call 'organization_events', params[:org]
+end
+
+get '/feeds' do
+  Feeds.call 'received_events', ENV['GITHUB_USER']
 end
 
 get '/feeds/:org' do
   Feeds.call 'organization_public_events', params[:org]
 end
 
-get '/feeds/:org/private' do
-  Feeds.call 'organization_events', params[:org]
+get '/feeds/:org/:repo' do
+  Feeds.call 'repository_events', "#{params[:org]}/#{params[:repo]}"
 end

@@ -1,7 +1,7 @@
 import React from 'react'
 
 const ErrorBanner = ({ message }) =>
-  <div className='flex items-center justify-center pa2 bg-washed-red navy'>
+  <div className='dib pa2 red'>
     <span className='lh-title ml3'>{message}</span>
   </div>
 
