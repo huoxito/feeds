@@ -22,8 +22,8 @@ ApiClient = Octokit::Client.new access_token: ENV['GITHUB_TOKEN']
 #
 class Feeds
   class << self
-    def call(action, arg)
-      events = ApiClient.send(action, arg)
+    def call(action, *arg)
+      events = ApiClient.send(action, *arg)
       # puts client.last_response.headers[:etag]
       events.map(&:to_h).to_json
     end
@@ -55,17 +55,17 @@ get '/limits' do
 end
 
 get '/feeds/:org-p' do
-  Feeds.call 'organization_events', params[:org]
+  Feeds.call 'organization_events', params[:org], page: params[:page]
 end
 
 get '/feeds' do
-  Feeds.call 'received_events', ENV['GITHUB_USER']
+  Feeds.call 'received_events', ENV['GITHUB_USER'], page: params[:page]
 end
 
 get '/feeds/:org' do
-  Feeds.call 'organization_public_events', params[:org]
+  Feeds.call 'organization_public_events', params[:org], page: params[:page]
 end
 
 get '/feeds/:org/:repo' do
-  Feeds.call 'repository_events', "#{params[:org]}/#{params[:repo]}"
+  Feeds.call 'repository_events', "#{params[:org]}/#{params[:repo]}", page: params[:page]
 end

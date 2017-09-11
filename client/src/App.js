@@ -18,13 +18,62 @@ class OrgNotFoundError extends Error {}
 class App extends Component {
   constructor (props) {
     super(props)
-    this.state = { collection: [], error: null, newIds: [] }
+    this.state = {
+      collection: [],
+      error: null,
+      newIds: [],
+      page: 1,
+      lastLoaded: new Date()
+    }
 
     const args = window.location.pathname.split('/').filter(e => e)
     this.feedsPath = (args.length > 0 && `/${args.join('/')}`) || ''
     this.orgName = args[0]
     this.updatePageTitle()
     this.fetchEvents()
+
+    this.observer = new IntersectionObserver(this.intersection)
+  }
+
+  intersection = (entries, observer) => {
+    entries.forEach(entry => {
+      if (this.state.collection.length > 0 && entry.isIntersecting) {
+        this.setState({ loadingByFooter: true })
+
+        console.log('------------')
+        console.log('Calling next page')
+
+        fetch(`/feeds${this.feedsPath}?page=${this.state.page + 1}`)
+          .then(response => response.json())
+          .then(collection => {
+            const length = this.state.collection.length
+            const lastId = this.state.collection[length - 1].id
+            const offsetEvent = collection.find(e => e.id === lastId)
+            const index = collection.indexOf(offsetEvent)
+
+            console.log(lastId)
+            console.log(offsetEvent)
+            console.log(index)
+
+            let newCollection = null
+
+            if (index === -1) {
+              console.log('Pushing all events to collection')
+              newCollection = update(this.state.collection, { $push: collection })
+            } else {
+              console.log('Pushing only events not loaded yet to collection')
+              const newEvents = collection.slice(index + 1)
+              newCollection = update(this.state.collection, { $push: newEvents })
+            }
+
+            this.setState({
+              collection: newCollection,
+              loadingByFooter: false,
+              page: this.state.page + 1
+            })
+          })
+      }
+    })
   }
 
   fetchEvents () {
@@ -56,11 +105,9 @@ class App extends Component {
         } else {
           const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
           wait(60000).then(() => this.fetchEvents())
-          console.log('------------')
-          console.log(`enqueued at ${new Date()} after error: ${error.message}`)
         }
 
-        this.setState({ error: error.message })
+        this.setState({ error: error.message, lastLoaded: new Date() })
       })
   }
 
@@ -75,6 +122,7 @@ class App extends Component {
         const newCollection = update(this.state.collection, { $unshift: newEvents })
 
         this.setState({
+          lastLoaded: new Date(),
           newIds: newIds,
           collection: newCollection.slice(0, 100)
         })
@@ -87,8 +135,6 @@ class App extends Component {
 
     const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
     wait(10000).then(() => this.fetchEvents())
-    console.log('------------')
-    console.log(`enqueued at ${new Date()}`)
   }
 
   updatePageTitle (update) {
@@ -123,14 +169,19 @@ class App extends Component {
           </a>
 
           <span className='dbi f7 fw1 absolute bottom-0 right-0'>
-            listing {this.state.collection.length} events
+            listing {this.state.collection.length} events, fetched
+            at {this.state.lastLoaded.toString()}
           </span>
         </header>
 
         {this.state.error && <ErrorBanner message={this.state.error} />}
-
         {this.state.collection && <EventsList list={this.state.collection}
           newIds={this.state.newIds} />}
+
+        <footer ref={el => el && this.observer.observe(el)} className='f7 fw1 mt2 ph2 mb2'>
+          {this.state.loadingByFooter && <p>Loading older events ..</p>}
+          <p>footer ..</p>
+        </footer>
       </section>
     )
   }
