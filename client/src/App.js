@@ -23,7 +23,7 @@ class App extends Component {
       error: null,
       newIds: [],
       page: 1,
-      lastLoaded: new Date()
+      lastLoad: new Date()
     }
 
     const args = window.location.pathname.split('/').filter(e => e)
@@ -107,7 +107,7 @@ class App extends Component {
           wait(60000).then(() => this.fetchEvents())
         }
 
-        this.setState({ error: error.message, lastLoaded: new Date() })
+        this.setState({ error: error.message, lastLoad: new Date() })
       })
   }
 
@@ -122,7 +122,6 @@ class App extends Component {
         const newCollection = update(this.state.collection, { $unshift: newEvents })
 
         this.setState({
-          lastLoaded: new Date(),
           newIds: newIds,
           collection: newCollection.slice(0, 100)
         })
@@ -133,6 +132,7 @@ class App extends Component {
       this.setState({ collection: collection })
     }
 
+    this.setState({ lastLoad: new Date() })
     const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
     wait(10000).then(() => this.fetchEvents())
   }
@@ -170,7 +170,7 @@ class App extends Component {
 
           <span className='dbi f7 fw1 absolute bottom-0 right-0'>
             listing {this.state.collection.length} events, fetched
-            at {this.state.lastLoaded.toString()}
+            at {this.state.lastLoad.toString()}
           </span>
         </header>
 

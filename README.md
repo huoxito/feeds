@@ -21,6 +21,8 @@ docker-compose up
 
 ---
 
+- Provide a reload / fetch button on header
+- Keep list of bookmarked events on a right column
 - 8s timeout to api calls
 - '.' (dot) focus on first even. And 'j' / 'k' could be used to navigate elements
 - CommitCommentEvent is pretty common. Handle it
