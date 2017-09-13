@@ -45,11 +45,6 @@ error Faraday::ConnectionFailed do
   { error: env['sinatra.error'].message }.to_json
 end
 
-get '/' do
-  content_type :html
-  send_file 'client/build/index.html'
-end
-
 get '/limits' do
   ApiClient.rate_limit.to_json
 end
@@ -68,4 +63,9 @@ end
 
 get '/feeds/:org/:repo' do
   Feeds.call 'repository_events', "#{params[:org]}/#{params[:repo]}", page: params[:page]
+end
+
+get '/*' do
+  content_type :html
+  send_file 'client/build/index.html'
 end
