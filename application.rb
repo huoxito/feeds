@@ -8,6 +8,8 @@ require 'octokit'
 require 'sinatra'
 require 'faraday-http-cache' # https://github.com/octokit/octokit.rb#caching
 require 'dotenv/load'
+require 'oauth2'
+require 'bson'
 
 stack = Faraday::RackBuilder.new do |builder|
   builder.use Faraday::HttpCache, serializer: Marshal, shared_cache: false
@@ -17,23 +19,28 @@ end
 
 Octokit.middleware = stack
 
-ApiClient = Octokit::Client.new access_token: ENV['GITHUB_TOKEN']
-
-#
-class Feeds
-  class << self
-    def call(action, *arg)
-      events = ApiClient.send(action, *arg)
-      # puts client.last_response.headers[:etag]
-      events.map(&:to_h).to_json
-    end
-  end
-end
+use Rack::Session::Cookie, key: '_github_feeds',
+                           expire_after: 360,
+                           secret: ENV['SECRET_COOKIE']
 
 set :public_folder, File.dirname(__FILE__) + '/client/build/'
 
 before do
   content_type :json
+
+  @page_args = { page: params[:page] }
+  @keys = {
+    client_id: ENV['CLIENT_APP_ID'],
+    client_secret: ENV['CLIENT_APP_SECRET']
+  }
+  @keys = @keys.merge access_token: session[:g_token] if session[:g_token]
+  @client = Octokit::Client.new @keys
+end
+
+after do
+  if request.path.start_with? '/feeds'
+    response.body = response.body.map(&:to_h).to_json
+  end
 end
 
 error Octokit::NotFound do
@@ -45,24 +52,66 @@ error Faraday::ConnectionFailed do
   { error: env['sinatra.error'].message }.to_json
 end
 
+get '/auth' do
+  options = {
+    site: 'https://github.com',
+    authorize_url: '/login/oauth/authorize',
+    token_url: '/login/oauth/access_token'
+  }
+  oauth = OAuth2::Client.new(@keys[:client_id], @keys[:client_secret], options)
+
+  session[:oauth_state] = BSON::ObjectId.new.to_s.chars.shuffle.join.to_s
+  args = { state: session[:oauth_state], scope: 'repo' }
+
+  redirect oauth.auth_code.authorize_url args
+end
+
+get '/auth/callback' do
+  raise if params[:state] != session[:oauth_state]
+  session[:oauth_state] = nil
+
+  options = {
+    site: 'https://github.com',
+    authorize_url: '/login/oauth/authorize',
+    token_url: '/login/oauth/access_token'
+  }
+  oauth = OAuth2::Client.new(@keys[:client_id], @keys[:client_secret], options)
+  session[:g_token] = oauth.auth_code.get_token(params[:code]).token
+
+  redirect '/'
+end
+
+get '/logout' do
+  session[:g_token] = nil
+  redirect '/'
+end
+
 get '/limits' do
-  ApiClient.rate_limit.to_json
+  @client.rate_limit.to_json
 end
 
 get '/feeds/:org-p' do
-  Feeds.call 'organization_events', params[:org], page: params[:page]
+  @client.organization_events params[:org], @page_args
 end
 
 get '/feeds' do
-  Feeds.call 'received_events', ENV['GITHUB_USER'], page: params[:page]
+  if session[:g_token]
+    @client.received_events @client.user[:login], @page_args
+  else
+    @client.public_events @page_args
+  end
 end
 
 get '/feeds/:org' do
-  Feeds.call 'organization_public_events', params[:org], page: params[:page]
+  client = Octokit::Client.new(
+    client_id: ENV['CLIENT_APP_ID'],
+    client_secret: ENV['CLIENT_APP_SECRET']
+  )
+  client.organization_public_events params[:org], @page_args
 end
 
 get '/feeds/:org/:repo' do
-  Feeds.call 'repository_events', "#{params[:org]}/#{params[:repo]}", page: params[:page]
+  @client.repository_events "#{params[:org]}/#{params[:repo]}", @page_args
 end
 
 get '/*' do

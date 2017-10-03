@@ -43,7 +43,8 @@ class App extends Component {
         console.log('------------')
         console.log('Calling next page')
 
-        fetch(`/feeds${this.feedsPath}?page=${this.state.page + 1}`)
+        const path = `/feeds${this.feedsPath}?page=${this.state.page + 1}`
+        fetch(path, { method: 'GET', credentials: 'same-origin' })
           .then(response => response.json())
           .then(collection => {
             const length = this.state.collection.length
@@ -77,7 +78,8 @@ class App extends Component {
   }
 
   fetchEvents () {
-    return fetch(`/feeds${this.feedsPath}`)
+    const path = `/feeds${this.feedsPath}`
+    return fetch(path, { method: 'GET', credentials: 'same-origin' })
       .then(response => {
         if (response.ok && response.status === 200) {
           if (this.state.error) { this.setState({ error: null }) }

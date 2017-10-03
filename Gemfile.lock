@@ -3,13 +3,20 @@ GEM
   specs:
     addressable (2.5.1)
       public_suffix (~> 2.0, >= 2.0.2)
+    bson (4.1.1)
     dotenv (2.2.1)
     faraday (0.13.1)
       multipart-post (>= 1.2, < 3)
     faraday-http-cache (2.0.0)
       faraday (~> 0.8)
+    httpauth (0.2.1)
+    multi_json (1.12.2)
     multipart-post (2.0.0)
     mustermann (1.0.0)
+    oauth2 (0.6.1)
+      faraday (~> 0.7)
+      httpauth (~> 0.1)
+      multi_json (~> 1.3)
     octokit (4.7.0)
       sawyer (~> 0.8.0, >= 0.5.3)
     public_suffix (2.0.5)
@@ -31,11 +38,13 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  bson
   dotenv
   faraday-http-cache
+  oauth2
   octokit
   puma
   sinatra
 
 BUNDLED WITH
-   1.15.1
+   1.15.4
