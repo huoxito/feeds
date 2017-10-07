@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import update from 'immutability-helper'
 import Events from './Events'
 import ErrorBanner from './ErrorBanner'
-import githubLogo from './GitHub-Mark-120px-plus.png'
+import logo from './logo.png'
 
 const EventsList = ({ list, newIds }) => {
   const events = list.map(events => {
@@ -19,6 +19,7 @@ class App extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      user: null,
       collection: [],
       error: null,
       newIds: [],
@@ -29,8 +30,8 @@ class App extends Component {
     const args = window.location.pathname.split('/').filter(e => e)
     this.feedsPath = (args.length > 0 && `/${args.join('/')}`) || ''
     this.orgName = args[0]
-    this.updatePageTitle()
     this.fetchEvents()
+    this.fetchUser()
 
     this.observer = new IntersectionObserver(this.intersection)
   }
@@ -75,6 +76,15 @@ class App extends Component {
           })
       }
     })
+  }
+
+  fetchUser () {
+    return fetch('/me', { method: 'GET', credentials: 'same-origin' })
+      .then(response => response.json())
+      .then(body => {
+        if (body.error) { return }
+        this.setState({ user: body })
+      })
   }
 
   fetchEvents () {
@@ -140,17 +150,26 @@ class App extends Component {
   }
 
   updatePageTitle (update) {
-    const title = `${this.orgName || 'user'} feeds at github`
-    const prefix = (update && `(${update}) `) || ''
+    const user = this.state.user && this.state.user.login
+    const title = `${user || this.orgName || ''} feeds at github`
+    // const prefix = (update && `(${update}) `) || ''
+    const prefix = ''
     document.title = `${prefix}${title}`
   }
 
-  orgAvatar () {
-    if (this.orgName && this.state.collection[0]) {
-      return this.state.collection[0].org.avatar_url
+  feedsLogo () {
+    const org = this.state.collection[0] && this.state.collection[0].org
+    if (this.orgName && org) {
+      return org.avatar_url
+    } else if (this.state.user) {
+      return this.state.user.avatar_url
     }
 
-    return githubLogo
+    return logo
+  }
+
+  feedsName () {
+    return (this.state.user && this.state.user.login) || this.orgName
   }
 
   render () {
@@ -170,15 +189,14 @@ class App extends Component {
     return (
       <section className='mw7 pl3 helvetica'>
         <header className='relative mt2 mb2 ph2 h-100'>
-          <a href='/'>
-            <img src={this.orgAvatar()}
+          <a href={`https://github.com/${this.feedsName()}`}
+            target='_blank'
+            className='link black'>
+            <img src={this.feedsLogo()}
               title='github feeds'
               alt='github feeds'
               className='br3 h2 w2 dib pr3 pl3' />
-          </a>
-          <a href={`https://github.com/${this.orgName}`}
-            className='link black'>
-            {this.orgName}
+            {this.feedsName()}
           </a>
 
           <span className='dbi f7 fw1 absolute bottom-0 right-0'>

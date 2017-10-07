@@ -20,7 +20,7 @@ end
 Octokit.middleware = stack
 
 use Rack::Session::Cookie, key: '_github_feeds',
-                           expire_after: 360,
+                           expire_after: 4320,
                            secret: ENV['SECRET_COOKIE']
 
 set :public_folder, File.dirname(__FILE__) + '/client/build/'
@@ -52,6 +52,11 @@ error Faraday::ConnectionFailed do
   { error: env['sinatra.error'].message }.to_json
 end
 
+error Octokit::Unauthorized do
+  status 500
+  { error: env['sinatra.error'].message }.to_json
+end
+
 get '/auth' do
   options = {
     site: 'https://github.com',
@@ -63,6 +68,7 @@ get '/auth' do
   session[:oauth_state] = BSON::ObjectId.new.to_s.chars.shuffle.join.to_s
   args = { state: session[:oauth_state], scope: 'repo' }
 
+  sleep 0.5
   redirect oauth.auth_code.authorize_url args
 end
 
@@ -83,6 +89,7 @@ end
 
 get '/logout' do
   session[:g_token] = nil
+  session[:login] = nil
   redirect '/'
 end
 
@@ -90,13 +97,23 @@ get '/limits' do
   @client.rate_limit.to_json
 end
 
+get '/me' do
+  if session[:g_token]
+    user = @client.user
+    session[:login] = user[:login]
+    user.to_h.to_json
+  else
+    raise Octokit::Unauthorized
+  end
+end
+
 get '/feeds/:org-p' do
   @client.organization_events params[:org], @page_args
 end
 
 get '/feeds' do
-  if session[:g_token]
-    @client.received_events @client.user[:login], @page_args
+  if session[:g_token] && session[:login]
+    @client.received_events session[:login], @page_args
   else
     @client.public_events @page_args
   end
