@@ -156,6 +156,17 @@ class App extends Component {
   render () {
     console.log('------------')
     console.log(`rendering .. ${new Date()}`)
+
+    if (this.state.collection.length === 0 && !this.state.error) {
+      return (
+        <section className='mw7 pl3 helvetica'>
+          <header className='relative mt2 mb2 ph2 h-100'>
+            <span className='pa3'>Hang on ..</span>
+          </header>
+        </section>
+      )
+    }
+
     return (
       <section className='mw7 pl3 helvetica'>
         <header className='relative mt2 mb2 ph2 h-100'>
