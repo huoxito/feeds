@@ -6,8 +6,8 @@
     "immutability-helper": "^2.3.1",
     "marked": "^0.3.6",
     "moment": "^2.18.1",
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1",
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0",
     "react-scripts": "1.0.10",
     "tachyons": "^4.7.4",
     "tachyons-cli": "^1.0.11"
