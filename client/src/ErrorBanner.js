@@ -1,8 +1,11 @@
 import React from 'react'
 
-const ErrorBanner = ({ message }) =>
-  <div className='dib pa2 red'>
-    <span className='lh-title ml3'>{message}</span>
-  </div>
+export default ({ message }) => {
+  if (!message) { return null }
 
-export default ErrorBanner
+  return (
+    <div className='dib pa2 red'>
+      <span className='lh-title ml3'>{message}</span>
+    </div>
+  )
+}

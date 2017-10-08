@@ -76,9 +76,10 @@ const BranchLink = ({ events }) => {
   )
 }
 
-const Summary = ({ events, justLoaded }) => {
+const Summary = ({ events }) => {
   return (
-    <div className={`relative fw4 f6 lh-copy mv0 ${justLoaded && 'highlight'}`}>
+    <div className='relative fw4 f6 lh-copy mv0'>
+      <span className='dn-ns di'>{events.actor.login} </span>
       {eventAction(events)}
       {events.type === 'PushEvent' && <BranchLink events={events} />}
       {events.type === 'PushEvent' && ' at '}
@@ -97,19 +98,12 @@ const Summary = ({ events, justLoaded }) => {
         {linkName(events)}
       </a> {timeFromNow(events.created_at)}
 
-      <div className='absolute right-0 top-0 f7 fw4'>
-        <a className='link blue' href={`/${events.repo.name.split('/')[0]}`}>
-          org
-        </a> | <a className='link blue' href={`/${events.repo.name}`}>
-          repo
-        </a>
-      </div>
     </div>
   )
 }
 
 const Avatar = ({ actor }) =>
-  <div className='mb4 mb0-ns ph3'>
+  <div className='mb4 mb0-ns ph3 dn db-ns'>
     <a href={`https://github.com/${actor.login}`} title={actor.login}>
       <img src={actor.avatar_url}
         className='br3 h2 w2 dib'

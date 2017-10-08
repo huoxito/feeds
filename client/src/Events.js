@@ -88,7 +88,7 @@ const Events = props => {
   const Event = customs[props.events.type]
 
   return (
-    <article className='mw-100 bt pv3 ph2 b--black-10'>
+    <article className='mw-100 bb pv3 ph2 b--black-10'>
       <div className='flex flex-column flex-row-ns'>
         <Avatar actor={props.events.actor} />
 

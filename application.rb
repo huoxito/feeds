@@ -68,7 +68,6 @@ get '/auth' do
   session[:oauth_state] = BSON::ObjectId.new.to_s.chars.shuffle.join.to_s
   args = { state: session[:oauth_state], scope: 'repo' }
 
-  sleep 0.5
   redirect oauth.auth_code.authorize_url args
 end
 
@@ -102,6 +101,14 @@ get '/me' do
     user = @client.user
     session[:login] = user[:login]
     user.to_h.to_json
+  else
+    raise Octokit::Unauthorized
+  end
+end
+
+get '/feeds/user' do
+  if session[:g_token]
+    @client.user_events session[:login]
   else
     raise Octokit::Unauthorized
   end

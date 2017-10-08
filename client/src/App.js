@@ -1,15 +1,14 @@
 import React, { Component } from 'react'
 import update from 'immutability-helper'
 import Events from './Events'
+import ProjectsList from './ProjectsList'
 import ErrorBanner from './ErrorBanner'
 import logo from './logo.png'
 
-const EventsList = ({ list, newIds }) => {
-  const events = list.map(events => {
-    const justLoaded = newIds && newIds.indexOf(events.id) !== -1
-    return <Events key={events.id} events={events} justLoaded={justLoaded} />
-  })
+const EventsList = ({ list }) => {
+  if (list.length === 0) { return null }
 
+  const events = list.map(events => <Events key={events.id} events={events} />)
   return <div>{events}</div>
 }
 
@@ -20,9 +19,9 @@ class App extends Component {
     super(props)
     this.state = {
       user: null,
+      userEvents: [],
       collection: [],
       error: null,
-      newIds: [],
       page: 1,
       lastLoad: new Date()
     }
@@ -53,10 +52,6 @@ class App extends Component {
             const offsetEvent = collection.find(e => e.id === lastId)
             const index = collection.indexOf(offsetEvent)
 
-            console.log(lastId)
-            console.log(offsetEvent)
-            console.log(index)
-
             let newCollection = null
 
             if (index === -1) {
@@ -79,11 +74,19 @@ class App extends Component {
   }
 
   fetchUser () {
-    return fetch('/me', { method: 'GET', credentials: 'same-origin' })
+    const options = { method: 'GET', credentials: 'same-origin' }
+    fetch('/me', options)
       .then(response => response.json())
       .then(body => {
         if (body.error) { return }
         this.setState({ user: body })
+
+        fetch('/feeds/user', options)
+          .then(response => response.json())
+          .then(body => {
+            if (body.error) { return }
+            this.setState({ userEvents: body })
+          })
       })
   }
 
@@ -130,14 +133,9 @@ class App extends Component {
       const newEvents = collection.slice(0, collection.indexOf(offsetEvent))
 
       if (newEvents.length > 0) {
-        const newIds = newEvents.map(events => events.id)
         const newCollection = update(this.state.collection, { $unshift: newEvents })
 
-        this.setState({
-          newIds: newIds,
-          collection: newCollection.slice(0, 100)
-        })
-
+        this.setState({ collection: newCollection.slice(0, 100) })
         this.updatePageTitle(newEvents.length)
       }
     } else {
@@ -169,7 +167,9 @@ class App extends Component {
   }
 
   feedsName () {
-    return (this.state.user && this.state.user.login) || this.orgName
+    return (this.state.user && this.state.user.login)
+      || this.orgName
+      || 'Github Feeds'
   }
 
   render () {
@@ -187,10 +187,9 @@ class App extends Component {
     }
 
     return (
-      <section className='mw7 pl3 helvetica'>
-        <header className='relative mt2 mb2 ph2 h-100'>
-          <a href={`https://github.com/${this.feedsName()}`}
-            target='_blank'
+      <div className='helvetica w-80-ns w-100 mh3-ns'>
+        <header className='relative mv2 pb1 bb b--black-10 h-100'>
+          <a href='/'
             className='link black'>
             <img src={this.feedsLogo()}
               title='github feeds'
@@ -199,21 +198,32 @@ class App extends Component {
             {this.feedsName()}
           </a>
 
-          <span className='dbi f7 fw1 absolute bottom-0 right-0'>
-            listing {this.state.collection.length} events, fetched
-            at {this.state.lastLoad.toString()}
+          <span className='dbi f7 fw1 absolute mv2 mh2 bottom-0 right-0'>
+            listing {this.state.collection.length} events
+            <span className='di-ns dn'>
+              , fetched at {this.state.lastLoad.toString()}
+            </span>
           </span>
         </header>
 
-        {this.state.error && <ErrorBanner message={this.state.error} />}
-        {this.state.collection && <EventsList list={this.state.collection}
-          newIds={this.state.newIds} />}
+        <div className='cf w-100'>
+          <section className='fl w-70-ns w-100'>
+            <ErrorBanner message={this.state.error} />
+            <EventsList list={this.state.collection} />
+          </section>
 
-        <footer ref={el => el && this.observer.observe(el)} className='f7 fw1 mt2 ph2 mb2'>
+          <ProjectsList header="You've contributed to"
+                        collection={this.state.userEvents} />
+          <ProjectsList header='Featured projects'
+                        collection={this.state.collection} />
+        </div>
+
+        <footer ref={el => el && this.observer.observe(el)}
+                className='f7 fw1 mt2 ph2 mb2'>
           {this.state.loadingByFooter && <p>Loading older events ..</p>}
           <p>footer ..</p>
         </footer>
-      </section>
+      </div>
     )
   }
 }
