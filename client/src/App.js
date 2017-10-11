@@ -133,6 +133,9 @@ class App extends Component {
       const newEvents = collection.slice(0, collection.indexOf(offsetEvent))
 
       if (newEvents.length > 0) {
+        console.log('------------')
+        console.log(`appending ${newEvents.length}`)
+
         const newCollection = update(this.state.collection, { $unshift: newEvents })
 
         this.setState({ collection: newCollection.slice(0, 100) })
@@ -173,9 +176,6 @@ class App extends Component {
   }
 
   render () {
-    console.log('------------')
-    console.log(`rendering .. ${new Date()}`)
-
     if (this.state.collection.length === 0 && !this.state.error) {
       return (
         <section className='mw7 pl3 helvetica'>
