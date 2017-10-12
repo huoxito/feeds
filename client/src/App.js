@@ -127,10 +127,10 @@ class App extends Component {
   }
 
   updateEventsAndEnqueue (collection) {
+    // FIXME TESTME
     if (this.state.collection.length > 0) {
-      const firstId = this.state.collection[0].id
-      const offsetEvent = collection.find(e => e.id === firstId)
-      const newEvents = collection.slice(0, collection.indexOf(offsetEvent))
+      const ids = this.state.collection.map(e => e.id)
+      const newEvents = collection.filter(e => ids.indexOf(e.id) === -1)
 
       if (newEvents.length > 0) {
         console.log('------------')
