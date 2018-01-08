@@ -84,21 +84,46 @@ const customs = {
   PullRequestReviewCommentEvent
 }
 
-const Events = props => {
-  const Event = customs[props.events.type]
+class ErrorBoundary extends React.Component {
+  constructor (props) {
+    super(props)
+    this.state = { hasError: false }
+  }
 
-  return (
-    <article className='mw-100 bb pv3 ph2 b--black-10'>
-      <div className='flex flex-column flex-row-ns'>
-        <Avatar actor={props.events.actor} />
+  componentDidCatch (error, info) {
+    this.setState({ hasError: true, message: error.message })
+  }
 
-        <div className='w-100 w-90-ns'>
-          <Summary {...props} />
-          {Event && <Event {...props} />}
-        </div>
+  render () {
+    if (this.state.hasError) {
+      return <div>
+        <p className='red'>something went wrong:</p>
+        <pre>{this.state.message}</pre>
       </div>
-    </article>
-  )
+    }
+    return this.props.children || null;
+  }
+}
+
+class Events extends React.Component {
+  render () {
+    const Event = customs[this.props.events.type]
+
+    return (
+      <article className='mw-100 bb pv3 ph2 b--black-10'>
+        <div className='flex flex-column flex-row-ns'>
+          <Avatar actor={this.props.events.actor} />
+
+          <div className='w-100 w-90-ns'>
+            <Summary {...this.props} />
+            <ErrorBoundary>
+              {Event && <Event {...this.props} />}
+            </ErrorBoundary>
+          </div>
+        </div>
+      </article>
+    )
+  }
 }
 
 export default Events
