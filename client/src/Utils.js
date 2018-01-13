@@ -23,6 +23,11 @@ const linkName = events => {
     return `${events.repo.name}#${events.payload.pull_request.number}`
   }
 
+  if (events.type.startsWith('CommitCommentEvent')) {
+    const commit = events.payload.comment.commit_id
+    return `${events.repo.name}@${commit.substr(0, 8)}`
+  }
+
   return events.repo.name
 }
 
@@ -44,6 +49,7 @@ const linkHref = events => {
 
 const eventAction = events => {
   if (events.type === 'IssueCommentEvent') { return 'commented on' }
+  if (events.type === 'CommitCommentEvent') { return 'commented on' }
   if (events.type === 'PushEvent') { return ' pushed to ' }
   if (events.type === 'DeleteEvent') { return ' deleted ' }
   if (events.type === 'ForkEvent') { return ' forked ' }
@@ -89,6 +95,7 @@ const Summary = ({ events }) => {
       {events.type === 'DeleteEvent' && ' at '}
       {events.type === 'WatchEvent' && ' watching '}
       {events.type === 'IssuesEvent' && ' issue '}
+      {events.type === 'CommitCommentEvent' && ' commit '}
       {events.type === 'PullRequestReviewCommentEvent' && ' pull request '}
       {events.type === 'IssueCommentEvent' && events.payload.issue.pull_request && ' pull request '}
       {events.type === 'IssueCommentEvent' && !events.payload.issue.pull_request && ' issue '}

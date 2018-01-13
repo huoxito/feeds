@@ -39,15 +39,14 @@ const PushEvent = ({ events }) => {
   return events.payload.commits.length > 0 && commitLine(events)
 }
 
-const IssueCommentEvent = ({ events }) =>
+const CommentEvent = ({ events }) =>
   <section>
     {richContent(events.payload.comment.body)}
   </section>
 
-const PullRequestReviewCommentEvent = ({ events }) =>
-  <section>
-    {richContent(events.payload.comment.body)}
-  </section>
+const IssueCommentEvent = CommentEvent
+const PullRequestReviewCommentEvent = CommentEvent
+const CommitCommentEvent = CommentEvent
 
 const PullRequestEvent = ({ events }) => {
   const mergedLine = ({ commits, additions, deletions, changed_files }) =>
@@ -77,6 +76,7 @@ const IssuesEvent = ({ events }) =>
   </section>
 
 const customs = {
+  CommitCommentEvent,
   PushEvent,
   IssuesEvent,
   IssueCommentEvent,
