@@ -11,6 +11,7 @@
     "react-redux": "^5.0.6",
     "react-scripts": "1.0.10",
     "redux": "^3.7.2",
+    "redux-thunk": "^2.2.0",
     "tachyons": "^4.7.4",
     "tachyons-cli": "^1.0.11"
   },
@@ -21,5 +22,8 @@
     "eject": "react-scripts eject",
     "css": "tachyons src/App.css > src/index.css --minify"
   },
-  "proxy": "http://localhost:4567"
+  "proxy": "http://localhost:4567",
+  "devDependencies": {
+    "redux-devtools-extension": "^2.13.2"
+  }
 }

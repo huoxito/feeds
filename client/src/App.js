@@ -1,37 +1,35 @@
 import React, { Component } from 'react'
+import { createStore, applyMiddleware } from 'redux'
+import { Provider } from 'react-redux'
+import thunkMiddleware from 'redux-thunk'
+import { composeWithDevTools } from 'redux-devtools-extension'
+
 import update from 'immutability-helper'
-import Events from './Events'
-import ProjectsList from './ProjectsList'
-import ErrorBanner from './ErrorBanner'
+import Lists from './Lists'
+import Header from './Header'
 import logo from './logo.png'
-
-const EventsList = ({ list }) => {
-  if (list.length === 0) { return null }
-
-  const events = list.map(events => <Events key={events.id} events={events} />)
-  return <div>{events}</div>
-}
+import reducer from './reducers'
+import * as actions from './actions'
 
 class OrgNotFoundError extends Error {}
 
+const store = createStore(
+  reducer,
+  composeWithDevTools(
+    applyMiddleware(
+      thunkMiddleware
+    )
+  )
+)
+
 class App extends Component {
-  constructor (props) {
-    super(props)
-    this.state = {
-      user: null,
-      userEvents: [],
-      collection: [],
-      error: null,
-      page: 1,
-      lastLoad: new Date()
-    }
-
+  componentDidMount () {
     const args = window.location.pathname.split('/').filter(e => e)
-    this.feedsPath = (args.length > 0 && `/${args.join('/')}`) || ''
     this.orgName = args[0]
-    this.fetchEvents()
-    this.fetchUser()
 
+    const feedsPath = (args.length > 0 && `/${args.join('/')}`) || ''
+    const path = `/feeds${feedsPath}`
+    store.dispatch(actions.fetchEvents(path))
     this.observer = new IntersectionObserver(this.intersection)
   }
 
@@ -90,66 +88,6 @@ class App extends Component {
       })
   }
 
-  fetchEvents () {
-    const path = `/feeds${this.feedsPath}`
-    return fetch(path, { method: 'GET', credentials: 'same-origin' })
-      .then(response => {
-        if (response.ok && response.status === 200) {
-          if (this.state.error) { this.setState({ error: null }) }
-        }
-
-        if (response.status === 404) {
-          throw new OrgNotFoundError(`${this.feedsPath.substr(1)} not found`)
-        }
-
-        if (response.status === 500) {
-          this.updatePageTitle(response.status)
-        }
-
-        return response.json()
-      })
-      .then(body => {
-        if (body.error) {
-          throw new Error(body.error)
-        } else {
-          this.updateEventsAndEnqueue(body)
-        }
-      })
-      .catch(error => {
-        if (error instanceof OrgNotFoundError) {
-        } else {
-          const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
-          wait(60000).then(() => this.fetchEvents())
-        }
-
-        this.setState({ error: error.message, lastLoad: new Date() })
-      })
-  }
-
-  updateEventsAndEnqueue (collection) {
-    // FIXME TESTME
-    if (this.state.collection.length > 0) {
-      const ids = this.state.collection.map(e => e.id)
-      const newEvents = collection.filter(e => ids.indexOf(e.id) === -1)
-
-      if (newEvents.length > 0) {
-        console.log('------------')
-        console.log(`appending ${newEvents.length}`)
-
-        const newCollection = update(this.state.collection, { $unshift: newEvents })
-
-        this.setState({ collection: newCollection.slice(0, 100) })
-        this.updatePageTitle(newEvents.length)
-      }
-    } else {
-      this.setState({ collection: collection })
-    }
-
-    this.setState({ lastLoad: new Date() })
-    const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
-    wait(10000).then(() => this.fetchEvents())
-  }
-
   updatePageTitle (update) {
     const user = this.state.user && this.state.user.login
     const title = `${user || this.orgName || ''} feeds at github`
@@ -176,54 +114,21 @@ class App extends Component {
   }
 
   render () {
-    if (this.state.collection.length === 0 && !this.state.error) {
-      return (
-        <section className='mw7 pl3 helvetica'>
-          <header className='relative mt2 mb2 ph2 h-100'>
-            <span className='pa3'>Hang on ..</span>
-          </header>
-        </section>
-      )
-    }
+    const state = store.getState()
 
     return (
-      <div className='helvetica w-80-ns w-100 mh3-ns'>
-        <header className='relative mv2 pb1 bb b--black-10 h-100'>
-          <a href='/'
-            className='link black'>
-            <img src={this.feedsLogo()}
-              title='github feeds'
-              alt='github feeds'
-              className='br3 h2 w2 dib pr3 pl3' />
-            {this.feedsName()}
-          </a>
+      <Provider store={store}>
+        <div className='helvetica w-80-ns w-100 mh3-ns'>
+          <Header />
+          <Lists />
 
-          <span className='dbi f7 fw1 absolute mv2 mh2 bottom-0 right-0'>
-            listing {this.state.collection.length} events
-            <span className='di-ns dn'>
-              , fetched at {this.state.lastLoad.toString()}
-            </span>
-          </span>
-        </header>
-
-        <div className='cf w-100'>
-          <section className='fl w-70-ns w-100'>
-            <ErrorBanner message={this.state.error} />
-            <EventsList list={this.state.collection} />
-          </section>
-
-          <ProjectsList header="You've contributed to"
-                        collection={this.state.userEvents} />
-          <ProjectsList header='Featured projects'
-                        collection={this.state.collection} />
+          <footer ref={el => el && this.observer}
+                  className='f7 fw1 mt2 ph2 mb2'>
+            {this.loadingByFooter && <p>Loading older events ..</p>}
+            <p>footer ..</p>
+          </footer>
         </div>
-
-        <footer ref={el => el && this.observer.observe(el)}
-                className='f7 fw1 mt2 ph2 mb2'>
-          {this.state.loadingByFooter && <p>Loading older events ..</p>}
-          <p>footer ..</p>
-        </footer>
-      </div>
+      </Provider>
     )
   }
 }
