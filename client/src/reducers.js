@@ -14,7 +14,8 @@ export const initialState = {
   error: null,
   logo: appLogo,
   feedsName: 'Github Feeds',
-  page: 1
+  feedsPath: '',
+  page: 1,
 }
 
 export default (state = initialState, action) => {
@@ -28,6 +29,7 @@ export default (state = initialState, action) => {
         logo: action.user.avatar_url,
         feedsName: action.user.login,
         list: action.list,
+        lastLoad: new Date(),
         isAuthenticated: true
       }
     case types.ENQUEUE_REQUESTS_EVENTS:
@@ -39,26 +41,45 @@ export default (state = initialState, action) => {
       return {
         ...state,
         loading: true,
+        lastLoad: new Date(),
         enqueued: false
       }
     case types.RECEIVE_EVENTS:
       const feedsName = action.path || state.feedsName
-      const prevList = state.list
-      let list
+      const list = update(state.list, { $unshift: action.list })
 
-      if (prevList.lenght > 0) {
-        const ids = prevList.map(e => e.id)
-        const newEvents = action.list.filter(e => ids.indexOf(e.id) === -1)
-        list = update(state.list, { $unshift: newEvents })
+      return {
+        ...state,
+        feedsName,
+        feedsPath: action.path,
+        list: list.slice(0, 100),
+        loading: false
+      }
+    case types.REQUEST_NEXT_PAGE:
+      return {
+        ...state,
+        loadingByFooter: true
+      }
+    case types.RECEIVE_NEXT_PAGE:
+      const length = state.list.length
+      const lastId = state.list[length - 1].id
+      const offsetEvent = action.list.find(e => e.id === lastId)
+      const index = action.list.indexOf(offsetEvent)
+
+      let newCollection = null
+
+      if (index === -1) {
+        newCollection = update(state.list, { $push: action.list })
       } else {
-        list = action.list
+        const newEvents = action.list.slice(index + 1)
+        newCollection = update(state.list, { $push: newEvents })
       }
 
       return {
         ...state,
-        list,
-        feedsName,
-        loading: false
+        list: newCollection,
+        page: state.page + 1,
+        loadingByFooter: false
       }
     default:
       return state

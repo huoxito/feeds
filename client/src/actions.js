@@ -7,11 +7,11 @@ const requestEvents = (path) => {
 }
 
 export const RECEIVE_EVENTS = 'RECEIVE_EVENTS'
-const receiveEvents = (path, response) => {
+const receiveEvents = (path, list) => {
   return {
     type: RECEIVE_EVENTS,
     path,
-    ...response
+    list
   }
 }
 
@@ -35,6 +35,43 @@ const receiveSession = (body) => {
   return {
     type: RECEIVE_SESSION,
     ...body
+  }
+}
+
+export const REQUEST_NEXT_PAGE = 'REQUEST_NEXT_PAGE'
+const requestNextPage = () => {
+  return {
+    type: REQUEST_NEXT_PAGE
+  }
+}
+
+export const RECEIVE_NEXT_PAGE = 'RECEIVE_NEXT_PAGE'
+const receiveNextPage = (list) => {
+  return {
+    type: RECEIVE_NEXT_PAGE,
+    list
+  }
+}
+
+export function fetchNextPage(entries) {
+  return (dispatch, getState) => {
+    const { list, feedsPath, page } = getState()
+    entries.forEach(entry => {
+      if (!list.length > 0 || !entry.isIntersecting) {
+        return
+      }
+
+      dispatch(requestNextPage())
+
+      const path = `/feeds${feedsPath}?page=${page + 1}`
+      fetch(path, { method: 'GET', credentials: 'same-origin' })
+        .then(
+          response => response.json()
+        )
+        .then(
+          body => dispatch(receiveNextPage(body.list))
+        )
+    })
   }
 }
 
@@ -71,7 +108,7 @@ export function enqueueEvents(feedsPath) {
 }
 
 export function fetchEvents(feedsPath) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(requestEvents(feedsPath))
 
     const options = { method: 'GET', credentials: 'same-origin' }
@@ -82,9 +119,12 @@ export function fetchEvents(feedsPath) {
       )
       .then(
         body => {
-          dispatch(receiveEvents(feedsPath, body))
+          const { list } = getState()
+          const ids = list.map(e => e.id)
+          const events = body.list.filter(e => ids.indexOf(e.id) === -1)
 
-          if (body.isAuthenticated) {
+          if (events.length > 0) {
+            dispatch(receiveEvents(feedsPath, events))
           }
 
           dispatch(enqueueEvents(feedsPath))

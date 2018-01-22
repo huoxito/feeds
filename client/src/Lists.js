@@ -25,7 +25,9 @@ const Lists = (props) => {
     <div className='cf w-100'>
       <section className='fl w-70-ns w-100'>
         <ErrorBanner message={props.error} />
-        {props.list.map(events => <Events key={events.id} events={events} />)}
+        {props.list.map(
+          events => <Events key={events.id} events={events} />
+        )}
       </section>
 
       <ProjectsList header="You've contributed to"

@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
-import logo from './logo.png'
 
 const mapStateToProps = (state) => {
   return {
@@ -20,7 +19,7 @@ const Header = (props) =>
     </a>
 
     <span className='dbi f7 fw1 absolute mv2 mh2 bottom-0 right-0'>
-      listing {props.collection} events
+      listing {props.list.length} events
       <span className='di-ns dn'>
         , fetched at {props.lastLoad.toString()}
       </span>
