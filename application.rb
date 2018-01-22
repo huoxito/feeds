@@ -37,12 +37,6 @@ before do
   @client = Octokit::Client.new @keys
 end
 
-after do
-  if request.path.start_with? '/feeds'
-    response.body = response.body.map(&:to_h).to_json
-  end
-end
-
 error Octokit::NotFound do
   status 404
 end
@@ -100,30 +94,34 @@ get '/me' do
   if session[:g_token]
     user = @client.user
     session[:login] = user[:login]
-    user.to_h.to_json
-  else
-    raise Octokit::Unauthorized
-  end
-end
-
-get '/feeds/user' do
-  if session[:g_token]
-    @client.user_events session[:login]
+    {
+      user: user.to_h,
+      userEvents: @client.user_events(session[:login]).map(&:to_h),
+      list: @client.received_events(session[:login]).map(&:to_h)
+    }.to_json
   else
     raise Octokit::Unauthorized
   end
 end
 
 get '/feeds/:org-p' do
-  @client.organization_events params[:org], @page_args
+  events = @client.organization_events params[:org], @page_args
+  {
+    isAuthenticated: !session[:g_token].to_s.empty?,
+    list: events.map(&:to_h)
+  }.to_json
 end
 
 get '/feeds' do
-  if session[:g_token] && session[:login]
-    @client.received_events session[:login], @page_args
-  else
-    @client.public_events @page_args
-  end
+  events = if session[:g_token] && session[:login]
+             @client.received_events session[:login], @page_args
+           else
+             @client.public_events @page_args
+           end
+  {
+    isAuthenticated: !session[:g_token].to_s.empty?,
+    list: events.map(&:to_h)
+  }.to_json
 end
 
 get '/feeds/:org' do
@@ -131,11 +129,21 @@ get '/feeds/:org' do
     client_id: ENV['CLIENT_APP_ID'],
     client_secret: ENV['CLIENT_APP_SECRET']
   )
-  client.organization_public_events params[:org], @page_args
+  events = client.organization_public_events params[:org], @page_args
+  {
+    isAuthenticated: !session[:g_token].to_s.empty?,
+    list: events.map(&:to_h)
+  }.to_json
 end
 
 get '/feeds/:org/:repo' do
-  @client.repository_events "#{params[:org]}/#{params[:repo]}", @page_args
+  path = "#{params[:org]}/#{params[:repo]}"
+  events = @client.repository_events path, @page_args
+
+  {
+    isAuthenticated: !session[:g_token].to_s.empty?,
+    list: events.map(&:to_h)
+  }.to_json
 end
 
 get '/*' do

@@ -1,19 +1,35 @@
 import * as types from './actions'
 import update from 'immutability-helper'
+import appLogo from './logo.png'
 
 export const initialState = {
+  starting: true,
+  loading: true,
+  enqueued: false,
+  isAuthenticated: false,
   user: null,
   userEvents: [],
   list: [],
+  lastLoad: new Date(),
   error: null,
-  loading: true,
-  enqueued: false,
-  page: 1,
-  lastLoad: new Date()
+  logo: appLogo,
+  feedsName: 'Github Feeds',
+  page: 1
 }
 
 export default (state = initialState, action) => {
   switch (action.type) {
+    case types.RECEIVE_SESSION:
+      return {
+        ...state,
+        starting: false,
+        user: action.user,
+        userEvents: action.userEvents,
+        logo: action.user.avatar_url,
+        feedsName: action.user.login,
+        list: action.list,
+        isAuthenticated: true
+      }
     case types.ENQUEUE_REQUESTS_EVENTS:
       return {
         ...state,
@@ -26,6 +42,7 @@ export default (state = initialState, action) => {
         enqueued: false
       }
     case types.RECEIVE_EVENTS:
+      const feedsName = action.path || state.feedsName
       const prevList = state.list
       let list
 
@@ -40,6 +57,7 @@ export default (state = initialState, action) => {
       return {
         ...state,
         list,
+        feedsName,
         loading: false
       }
     default:

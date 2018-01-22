@@ -7,11 +7,11 @@ const requestEvents = (path) => {
 }
 
 export const RECEIVE_EVENTS = 'RECEIVE_EVENTS'
-const receiveEvents = (path, list) => {
+const receiveEvents = (path, response) => {
   return {
     type: RECEIVE_EVENTS,
     path,
-    list
+    ...response
   }
 }
 
@@ -20,6 +20,42 @@ const enqueueRequestEvents = (path) => {
   return {
     type: ENQUEUE_REQUESTS_EVENTS,
     path
+  }
+}
+
+export const REQUEST_SESSION = 'REQUEST_SESSION'
+const requestSession = (body) => {
+  return {
+    type: REQUEST_SESSION
+  }
+}
+
+export const RECEIVE_SESSION = 'RECEIVE_SESSION'
+const receiveSession = (body) => {
+  return {
+    type: RECEIVE_SESSION,
+    ...body
+  }
+}
+
+export function fetchSession (feedsPath) {
+  return (dispatch) => {
+    dispatch(requestSession())
+
+    const options = { method: 'GET', credentials: 'same-origin' }
+    fetch('/me', options)
+      .then(
+        response => response.json()
+      )
+      .then(
+        body => {
+          if (!body.error) {
+            dispatch(receiveSession(body))
+          }
+
+          dispatch(fetchEvents(feedsPath))
+        }
+      )
   }
 }
 
@@ -39,7 +75,7 @@ export function fetchEvents(feedsPath) {
     dispatch(requestEvents(feedsPath))
 
     const options = { method: 'GET', credentials: 'same-origin' }
-    return fetch(feedsPath, options)
+    return fetch(`/feeds${feedsPath}`, options)
       .then(
         response => response.json(),
         error => console.log('shit')
@@ -47,6 +83,10 @@ export function fetchEvents(feedsPath) {
       .then(
         body => {
           dispatch(receiveEvents(feedsPath, body))
+
+          if (body.isAuthenticated) {
+          }
+
           dispatch(enqueueEvents(feedsPath))
         }
       )
