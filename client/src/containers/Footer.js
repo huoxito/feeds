@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { fetchNextPage } from './actions'
+import { fetchNextPage } from '../actions'
 
 const mapStateToProps = (state) => {
   return {

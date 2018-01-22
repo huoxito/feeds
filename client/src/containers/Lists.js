@@ -1,7 +1,7 @@
 import * as React from 'react'
-import ProjectsList from './ProjectsList'
-import Events from './Events'
-import ErrorBanner from './ErrorBanner'
+import ProjectsList from '../components/ProjectsList'
+import Events from '../components/Events'
+import ErrorBanner from '../components/ErrorBanner'
 import { connect } from 'react-redux'
 
 const mapStateToProps = (state) => {

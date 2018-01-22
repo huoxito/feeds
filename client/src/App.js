@@ -4,9 +4,9 @@ import { Provider } from 'react-redux'
 import thunkMiddleware from 'redux-thunk'
 import { composeWithDevTools } from 'redux-devtools-extension'
 
-import Lists from './Lists'
-import Header from './Header'
-import Footer from './Footer'
+import Lists from './containers/Lists'
+import Header from './containers/Header'
+import Footer from './containers/Footer'
 import reducer from './reducers'
 import { fetchSession } from './actions'
 
