@@ -4,10 +4,8 @@ import Events from '../components/Events'
 import ErrorBanner from '../components/ErrorBanner'
 import { connect } from 'react-redux'
 
-const mapStateToProps = (state) => {
-  return {
-    ...state
-  }
+const mapStateToProps = ({ list, error, userEvents }) => {
+  return { list, error, userEvents }
 }
 
 const Lists = (props) => {
