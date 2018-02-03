@@ -112,7 +112,7 @@ get '/feeds/:org-p' do
   }.to_json
 end
 
-get '/feeds' do
+get '/feeds/?' do
   events = if session[:g_token] && session[:login]
              @client.received_events session[:login], @page_args
            else

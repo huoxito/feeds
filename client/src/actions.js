@@ -101,7 +101,7 @@ export function enqueueEvents(feedsPath) {
     dispatch(enqueueRequestEvents(feedsPath))
 
     const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
-    return wait(15000).then(
+    return wait(5000).then(
       () => dispatch(fetchEvents(feedsPath))
     )
   }

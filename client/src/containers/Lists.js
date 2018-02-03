@@ -3,9 +3,10 @@ import ProjectsList from '../components/ProjectsList'
 import Events from '../components/Events'
 import ErrorBanner from '../components/ErrorBanner'
 import { connect } from 'react-redux'
+import { withRouter } from 'react-router-dom'
 
-const mapStateToProps = ({ list, error, userEvents }) => {
-  return { list, error, userEvents }
+const mapStateToProps = ({ starting, list, error, userEvents }) => {
+  return { starting, list, error, userEvents }
 }
 
 const Lists = (props) => {
@@ -36,4 +37,6 @@ const Lists = (props) => {
   )
 }
 
-export default connect(mapStateToProps)(Lists)
+export default withRouter(
+  connect(mapStateToProps)(Lists)
+)
