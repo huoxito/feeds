@@ -18,12 +18,12 @@ class Footer extends Component {
   }
 
   render () {
-    if (this.props.starting) { return null }
+    if (this.props.starting || this.props.loading) { return null }
 
     return (
       <footer ref={el => el && this.observer.observe(el)}
               className='f7 fw1 mt2 ph2 mb2'>
-        {this.loadingByFooter && <p>Loading older events ..</p>}
+        {this.props.loadingByFooter && <p>Loading older events ..</p>}
         <p>footer ..</p>
       </footer>
     )

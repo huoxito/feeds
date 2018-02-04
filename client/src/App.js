@@ -12,7 +12,7 @@ import Lists from './containers/Lists'
 import Header from './containers/Header'
 import Footer from './containers/Footer'
 import reducer from './reducers'
-import { fetchSession, fetchEvents } from './actions'
+import { fetchSession, switchEventsList } from './actions'
 
 const store = createStore(
   reducer,
@@ -25,17 +25,13 @@ const store = createStore(
 
 class App extends Component {
   componentDidMount () {
-    console.log('----- MOUNTED')
-    console.log(this.props.match)
     const { url } = this.props.match
     store.dispatch(fetchSession(url))
   }
 
   componentDidUpdate () {
-    console.log('----- UPDATED')
-    console.log(this.props.match)
     const { url } = this.props.match
-    store.dispatch(fetchEvents(url))
+    store.dispatch(switchEventsList(url))
   }
 
   render () {

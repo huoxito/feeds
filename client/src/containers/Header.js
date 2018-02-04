@@ -1,25 +1,31 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
+import {
+  Link
+} from 'react-router-dom'
 
-const mapStateToProps = (state) => {
+const mapStateToProps = ({ logo, path, pages, lastLoad }) => {
   return {
-    ...state
+    logo,
+    path,
+    count: (pages[path] || []).length,
+    lastLoad
   }
 }
 
 const Header = (props) =>
   <header className='relative mv2 pb1 bb b--black-10 h-100'>
-    <a href='/'
+    <Link to='/'
       className='link black'>
       <img src={props.logo}
         title='github feeds'
         alt='github feeds'
         className='br3 h2 w2 dib pr3 pl3' />
-      {props.feedsName}
-    </a>
+      {props.path}
+    </Link>
 
     <span className='dbi f7 fw1 absolute mv2 mh2 bottom-0 right-0'>
-      listing {props.list.length} events
+      listing {props.count} events
       <span className='di-ns dn'>
         , fetched at {props.lastLoad.toString()}
       </span>

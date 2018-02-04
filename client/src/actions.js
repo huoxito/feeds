@@ -1,8 +1,9 @@
 export const REQUEST_EVENTS = 'REQUEST_EVENTS'
-const requestEvents = (path) => {
+const requestEvents = (path, loading = false) => {
   return {
     type: REQUEST_EVENTS,
-    path
+    path,
+    loading
   }
 }
 
@@ -38,6 +39,14 @@ const receiveSession = (body) => {
   }
 }
 
+export const SET_PATH = 'SET_PATH'
+const setPath = (path) => {
+  return {
+    type: SET_PATH,
+    path
+  }
+}
+
 export const REQUEST_NEXT_PAGE = 'REQUEST_NEXT_PAGE'
 const requestNextPage = () => {
   return {
@@ -46,37 +55,41 @@ const requestNextPage = () => {
 }
 
 export const RECEIVE_NEXT_PAGE = 'RECEIVE_NEXT_PAGE'
-const receiveNextPage = (list) => {
+const receiveNextPage = (list, path) => {
   return {
     type: RECEIVE_NEXT_PAGE,
-    list
+    list,
+    path
   }
 }
 
 export function fetchNextPage(entries) {
   return (dispatch, getState) => {
-    const { list, feedsPath, page } = getState()
+    const { pages, path, page } = getState()
+
     entries.forEach(entry => {
-      if (!list.length > 0 || !entry.isIntersecting) {
+      const events = [].concat(...Object.values(pages))
+      if (!entry.isIntersecting || !events.length) {
         return
       }
 
       dispatch(requestNextPage())
 
-      const path = `/feeds${feedsPath}?page=${page + 1}`
-      fetch(path, { method: 'GET', credentials: 'same-origin' })
+      const url = `/feeds${path}?page=${page + 1}`
+      fetch(url, { method: 'GET', credentials: 'same-origin' })
         .then(
           response => response.json()
         )
         .then(
-          body => dispatch(receiveNextPage(body.list))
+          body => dispatch(receiveNextPage(body.list, path))
         )
     })
   }
 }
 
-export function fetchSession (feedsPath) {
-  return (dispatch) => {
+export function fetchSession (path) {
+  return (dispatch, getState) => {
+    dispatch(setPath(path))
     dispatch(requestSession())
 
     const options = { method: 'GET', credentials: 'same-origin' }
@@ -90,45 +103,66 @@ export function fetchSession (feedsPath) {
             dispatch(receiveSession(body))
           }
 
-          dispatch(fetchEvents(feedsPath))
+          const { path } = getState()
+          dispatch(fetchEvents(path))
         }
       )
   }
 }
 
-export function enqueueEvents(feedsPath) {
-  return (dispatch) => {
-    dispatch(enqueueRequestEvents(feedsPath))
+export function enqueueEvents(path) {
+  return (dispatch, getState) => {
+    dispatch(enqueueRequestEvents(path))
 
     const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
-    return wait(5000).then(
-      () => dispatch(fetchEvents(feedsPath))
+    return wait(30000).then(
+      () => {
+        const { path: currentPath } = getState()
+        if (currentPath !== path) {
+          return
+        }
+        dispatch(fetchEvents(path))
+      }
     )
   }
 }
 
-export function fetchEvents(feedsPath) {
+export function fetchEvents(path) {
   return (dispatch, getState) => {
-    dispatch(requestEvents(feedsPath))
+    const { pages } = getState()
+    const list = pages[path] || []
+    dispatch(requestEvents(path, list.length === 0))
 
     const options = { method: 'GET', credentials: 'same-origin' }
-    return fetch(`/feeds${feedsPath}`, options)
+    return fetch(`/feeds${path}`, options)
       .then(
         response => response.json(),
         error => console.log('shit')
       )
       .then(
         body => {
-          const { list } = getState()
+          const { pages } = getState()
+          const list = pages[path] || []
           const ids = list.map(e => e.id)
           const events = body.list.filter(e => ids.indexOf(e.id) === -1)
 
           if (events.length > 0) {
-            dispatch(receiveEvents(feedsPath, events))
+            dispatch(receiveEvents(path, events))
           }
 
-          dispatch(enqueueEvents(feedsPath))
+          const { path: currentPath } = getState()
+          if (currentPath !== path) {
+            return
+          }
+          dispatch(enqueueEvents(path))
         }
       )
+  }
+}
+
+export function switchEventsList(path) {
+  return (dispatch) => {
+    dispatch(setPath(path))
+    dispatch(fetchEvents(path))
   }
 }
