@@ -100,7 +100,11 @@ get '/me' do
       list: @client.received_events(session[:login]).map(&:to_h)
     }.to_json
   else
-    raise Octokit::Unauthorized
+    {
+      user: nil,
+      userEvents: [],
+      list: @client.public_events.map(&:to_h)
+    }.to_json
   end
 end
 
@@ -124,7 +128,7 @@ get '/feeds/?' do
   }.to_json
 end
 
-get '/feeds/:org' do
+get '/feeds/:org/?' do
   client = Octokit::Client.new(
     client_id: ENV['CLIENT_APP_ID'],
     client_secret: ENV['CLIENT_APP_SECRET']

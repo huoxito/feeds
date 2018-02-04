@@ -5,8 +5,16 @@ import ErrorBanner from '../components/ErrorBanner'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 
-const mapStateToProps = ({ loading, starting, path, pages, error, userEvents }) => {
-  return { loading, starting, path, pages, error, userEvents }
+const mapStateToProps = ({
+  loading,
+  starting,
+  path,
+  user,
+  pages,
+  error,
+  userEvents
+}) => {
+  return { loading, starting, path, user, pages, error, userEvents }
 }
 
 const Lists = (props) => {
@@ -42,10 +50,10 @@ const Lists = (props) => {
         )}
       </section>
 
-      <ProjectsList header="You've contributed to"
-                    collection={props.userEvents} />
-      <ProjectsList header='Featured projects'
-                    collection={allEvents} />
+      {props.user && <ProjectsList header="You've contributed to"
+                    collection={props.userEvents} />}
+      {props.user && <ProjectsList header='Featured projects'
+                    collection={allEvents} />}
     </div>
   )
 }

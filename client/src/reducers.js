@@ -1,6 +1,5 @@
 import * as types from './actions'
 import update from 'immutability-helper'
-import appLogo from './logo.png'
 
 export const initialState = {
   starting: true,
@@ -13,7 +12,6 @@ export const initialState = {
   pages: { '/': [] },
   lastLoad: new Date(),
   error: null,
-  logo: appLogo,
   page: 1
 }
 
@@ -26,7 +24,6 @@ export default (state = initialState, action) => {
         loading: false,
         user: action.user,
         userEvents: action.userEvents,
-        logo: action.user.avatar_url,
         pages: {
           '/': action.list
         },

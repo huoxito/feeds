@@ -4,6 +4,8 @@ import {
   Link
 } from 'react-router-dom'
 
+import appLogo from '../logo.png'
+
 const mapStateToProps = ({ logo, path, pages, lastLoad }) => {
   return {
     logo,
@@ -17,7 +19,7 @@ const Header = (props) =>
   <header className='relative mv2 pb1 bb b--black-10 h-100'>
     <Link to='/'
       className='link black'>
-      <img src={props.logo}
+      <img src={appLogo}
         title='github feeds'
         alt='github feeds'
         className='br3 h2 w2 dib pr3 pl3' />
