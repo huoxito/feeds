@@ -33,7 +33,8 @@ export default (state = initialState, action) => {
     case types.SET_PATH:
       return {
         ...state,
-        path: action.path
+        path: action.path,
+        error: null
       }
     case types.ENQUEUE_REQUESTS_EVENTS:
       return {
@@ -47,6 +48,13 @@ export default (state = initialState, action) => {
         lastLoad: new Date(),
         enqueued: false,
         loading: action.loading
+      }
+    case types.RECEIVE_EVENTS_FAILED:
+      return {
+        ...state,
+        enqueued: false,
+        loading: false,
+        error: action.message
       }
     case types.RECEIVE_EVENTS:
       const list = state.pages[action.path] || []

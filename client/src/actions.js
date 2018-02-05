@@ -16,6 +16,22 @@ const receiveEvents = (path, list) => {
   }
 }
 
+export const RECEIVE_EVENTS_FAILED = 'RECEIVE_EVENTS_FAILED'
+const receiveEventsFailed = (message) => {
+  return {
+    type: RECEIVE_EVENTS_FAILED,
+    message
+  }
+}
+
+export const REQUEST_EVENTS_FAILED = 'REQUEST_EVENTS_FAILED'
+const requestEventsFailed = (message) => {
+  return {
+    type: REQUEST_EVENTS_FAILED,
+    message
+  }
+}
+
 export const ENQUEUE_REQUESTS_EVENTS = 'ENQUEUE_REQUESTS_EVENTS'
 const enqueueRequestEvents = (path) => {
   return {
@@ -110,12 +126,12 @@ export function fetchSession (path) {
   }
 }
 
-export function enqueueEvents(path) {
+export function enqueueEvents(path, time = 20) {
   return (dispatch, getState) => {
     dispatch(enqueueRequestEvents(path))
 
     const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
-    return wait(30000).then(
+    return wait(time * 1000).then(
       () => {
         const { path: currentPath } = getState()
         if (currentPath !== path) {
@@ -126,6 +142,7 @@ export function enqueueEvents(path) {
     )
   }
 }
+class OrgNotFoundError extends Error {}
 
 export function fetchEvents(path) {
   return (dispatch, getState) => {
@@ -136,7 +153,13 @@ export function fetchEvents(path) {
     const options = { method: 'GET', credentials: 'same-origin' }
     return fetch(`/feeds${path}`, options)
       .then(
-        response => response.json(),
+        response => {
+          if (response.status === 404) {
+            throw new OrgNotFoundError(`${path} not found`)
+          }
+
+          return response.json()
+        },
         error => console.log('shit')
       )
       .then(
@@ -150,11 +173,17 @@ export function fetchEvents(path) {
             dispatch(receiveEvents(path, events))
           }
 
-          const { path: currentPath } = getState()
-          if (currentPath !== path) {
-            return
-          }
           dispatch(enqueueEvents(path))
+        }
+      )
+      .catch(
+        error => {
+          if (error instanceof OrgNotFoundError) {
+          } else {
+            dispatch(enqueueEvents(path, 60))
+          }
+
+          dispatch(receiveEventsFailed(error.message))
         }
       )
   }
