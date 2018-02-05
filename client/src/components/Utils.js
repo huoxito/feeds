@@ -1,6 +1,6 @@
 import React from 'react'
 import Marked from 'marked'
-import moment from 'moment'
+import TimeFromNow from './TimeFromNow'
 
 const linkTitle = events => {
   if (events.type.startsWith('Issue')) {
@@ -66,11 +66,6 @@ const richContent = content =>
   <p className='f6 fw3 ma0 lh-copy'
     dangerouslySetInnerHTML={{__html: Marked(content)}} />
 
-const timeFromNow = timeString => {
-  const time = moment.utc(timeString.replace(' UTC', ''))
-  return <span title={time.toDate()}>{moment(time).fromNow()}</span>
-}
-
 const BranchLink = ({ events }) => {
   const ref = events.payload.ref || events.payload.master_branch
   const name = ref.replace('refs/heads/', '')
@@ -103,7 +98,7 @@ const Summary = ({ events }) => {
 
       <a title={linkTitle(events)} className='link blue' href={linkHref(events)}>
         {linkName(events)}
-      </a> {timeFromNow(events.created_at)}
+      </a> <TimeFromNow timestamp={events.created_at} />
 
     </div>
   )
