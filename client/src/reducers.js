@@ -8,6 +8,7 @@ export const initialState = {
   enqueued: false,
   isAuthenticated: false,
   user: null,
+  userOrganizations: [],
   userEvents: [],
   pages: { '/': [] },
   lastLoad: new Date(),
@@ -23,6 +24,7 @@ export default (state = initialState, action) => {
         starting: false,
         loading: false,
         user: action.user,
+        userOrganizations: action.organizations || [],
         userEvents: action.userEvents,
         pages: {
           '/': action.list

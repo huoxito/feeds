@@ -96,6 +96,7 @@ get '/me' do
     session[:login] = user[:login]
     {
       user: user.to_h,
+      organizations: @client.organizations.map(&:login),
       userEvents: @client.user_events(session[:login]).map(&:to_h),
       list: @client.received_events(session[:login]).map(&:to_h)
     }.to_json
