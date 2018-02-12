@@ -24,14 +24,6 @@ const receiveEventsFailed = (message) => {
   }
 }
 
-export const REQUEST_EVENTS_FAILED = 'REQUEST_EVENTS_FAILED'
-const requestEventsFailed = (message) => {
-  return {
-    type: REQUEST_EVENTS_FAILED,
-    message
-  }
-}
-
 export const ENQUEUE_REQUESTS_EVENTS = 'ENQUEUE_REQUESTS_EVENTS'
 const enqueueRequestEvents = (path) => {
   return {
@@ -178,7 +170,7 @@ export function fetchEvents(path) {
       )
       .then(
         body => {
-          const { pages } = getState()
+          const { pages, path: currentPath } = getState()
           const list = pages[path] || []
           const ids = list.map(e => e.id)
           const events = body.list.filter(e => ids.indexOf(e.id) === -1)
@@ -187,6 +179,9 @@ export function fetchEvents(path) {
             dispatch(receiveEvents(path, events))
           }
 
+          if (currentPath !== path) {
+            return
+          }
           dispatch(enqueueEvents(path))
         }
       )

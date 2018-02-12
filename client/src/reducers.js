@@ -54,7 +54,6 @@ export default (state = initialState, action) => {
     case types.RECEIVE_EVENTS_FAILED:
       return {
         ...state,
-        enqueued: false,
         loading: false,
         error: action.message
       }
