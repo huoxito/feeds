@@ -22,7 +22,7 @@ class Footer extends Component {
 
     return (
       <footer ref={el => el && this.observer.observe(el)}
-              className='f7 fw1 mt2 ph2 mb2'>
+              className='f7 h1 fw1 mt2 ph2 mb2'>
         {this.props.loadingByFooter && <p>Loading older events ..</p>}
       </footer>
     )
