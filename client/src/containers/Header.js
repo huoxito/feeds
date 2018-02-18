@@ -26,7 +26,19 @@ const Header = (props) =>
         className='br3 h2 w2 dib pr3 pl3' />
     </Link>
 
-    <p className='di ml1'>{props.path}</p>
+    <div className="dib">
+      <form className="mw7 center br2-ns">
+          <div className="cf">
+            <input className="f6 f5-l input-reset bn black-80 bg-white lh-solid w-100 w-75-m w-80-l br2-ns br--left-ns"
+              placeholder=":user/:repo"
+              type="text"
+              name="feed"
+              defaultValue={props.path} />
+            <input className="f6 f5-l button-reset pv1 tc bn bg-animate bg-black-70 hover-bg-black white pointer w-100 w-25-m w-20-l br2-ns br--right-ns"
+              type="submit" value="update" />
+          </div>
+      </form>
+    </div>
 
     <div className='dib absolute right-0'>
       {!props.user && <a className="no-underline near-white bg-animate bg-near-black hover-bg-gray inline-flex items-center mr1 tc br2 pa2" href="/auth" title="Sign in with GitHub">
