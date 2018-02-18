@@ -62,6 +62,14 @@ const requestNextPage = () => {
   }
 }
 
+export const RECEIVE_NEXT_PAGE_FAILED = 'RECEIVE_NEXT_PAGE_FAILED'
+const receiveNextPageFailed = (message) => {
+  return {
+    type: RECEIVE_NEXT_PAGE_FAILED,
+    message
+  }
+}
+
 export const RECEIVE_NEXT_PAGE = 'RECEIVE_NEXT_PAGE'
 const receiveNextPage = (list, path) => {
   return {
@@ -73,7 +81,7 @@ const receiveNextPage = (list, path) => {
 
 export function fetchNextPage(entries) {
   return (dispatch, getState) => {
-    const { pages, path, page, userOrganizations } = getState()
+    const { pages, path, userOrganizations } = getState()
 
     entries.forEach(entry => {
       const events = [].concat(...Object.values(pages))
@@ -90,13 +98,21 @@ export function fetchNextPage(entries) {
         url = `${path}-p`
       }
 
-      url = `/feeds${url}?page=${page + 1}`
+      url = `/feeds${url}?page=${pages[`${path}pageNumber`] || 2}`
       fetch(url, { method: 'GET', credentials: 'same-origin' })
+        .then(response => response.json())
         .then(
-          response => response.json()
+          body => {
+
+            if (body.error) {
+              throw new Error(body.error)
+            } else {
+              dispatch(receiveNextPage(body.list, path))
+            }
+          }
         )
-        .then(
-          body => dispatch(receiveNextPage(body.list, path))
+        .catch(
+          error => dispatch(receiveNextPageFailed(error.message))
         )
     })
   }

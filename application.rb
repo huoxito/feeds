@@ -51,6 +51,11 @@ error Octokit::Unauthorized do
   { error: env['sinatra.error'].message }.to_json
 end
 
+error Octokit::UnprocessableEntity do
+  status 500
+  { error: env['sinatra.error'].message }.to_json
+end
+
 get '/auth' do
   options = {
     site: 'https://github.com',

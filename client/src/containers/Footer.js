@@ -20,6 +20,14 @@ class Footer extends Component {
   render () {
     if (this.props.starting || this.props.loading) { return null }
 
+    if (this.props.footerError) {
+      return (
+        <footer className='f7 h1 fw1 mt2 ph2 mb2'>
+          <p className='red'>{this.props.footerError}</p>
+        </footer>
+      )
+    }
+
     return (
       <footer ref={el => el && this.observer.observe(el)}
               className='f7 h1 fw1 mt2 ph2 mb2'>

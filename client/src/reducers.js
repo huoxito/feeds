@@ -6,14 +6,16 @@ export const initialState = {
   path: '/',
   loading: true,
   enqueued: false,
-  isAuthenticated: false,
   user: null,
   userOrganizations: [],
   userEvents: [],
-  pages: { '/': [] },
+  pages: {
+    '/': [],
+    '/pageNumber': 1
+  },
   lastLoad: new Date(),
   error: null,
-  page: 1
+  footerError: null
 }
 
 export default (state = initialState, action) => {
@@ -29,14 +31,14 @@ export default (state = initialState, action) => {
         pages: {
           '/': action.list
         },
-        lastLoad: new Date(),
-        isAuthenticated: true
+        lastLoad: new Date()
       }
     case types.SET_PATH:
       return {
         ...state,
         path: action.path,
-        error: null
+        error: null,
+        footerError: null
       }
     case types.ENQUEUE_REQUESTS_EVENTS:
       return {
@@ -74,6 +76,12 @@ export default (state = initialState, action) => {
         ...state,
         loadingByFooter: true
       }
+    case types.RECEIVE_NEXT_PAGE_FAILED:
+      return {
+        ...state,
+        loadingByFooter: false,
+        footerError: action.message
+      }
     case types.RECEIVE_NEXT_PAGE:
       const page = state.pages[action.path]
       const length = page.length
@@ -90,14 +98,15 @@ export default (state = initialState, action) => {
         newCollection = update(page, { $push: newEvents })
       }
 
+      const pageNumberKey = `${action.path}pageNumber`
       return {
         ...state,
         list: newCollection,
         pages: {
           ...state.pages,
-          [action.path]: newCollection.slice(0, 100)
+          [action.path]: newCollection,
+          [pageNumberKey]: (state.pages[pageNumberKey] || 1) + 1
         },
-        page: state.page + 1,
         loadingByFooter: false
       }
     default:
