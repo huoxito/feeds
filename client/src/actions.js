@@ -141,7 +141,7 @@ export function fetchSession (path) {
   }
 }
 
-export function enqueueEvents(path, time = 20) {
+export function enqueueEvents(path, time = 30) {
   return (dispatch, getState) => {
     dispatch(enqueueRequestEvents(path))
 
