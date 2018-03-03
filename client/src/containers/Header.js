@@ -41,6 +41,10 @@ class Header extends Component {
     if (this.props.match.url !== nextProps.match.url) {
       this.setState({ redirect: false })
     }
+
+    if (`/${this.state.inputValue}` !== this.props.match.url) {
+      this.setState({ inputValue: this.props.match.url.substr(1) })
+    }
   }
 
   render () {
