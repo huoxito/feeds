@@ -7,6 +7,17 @@ import { withRouter } from 'react-router-dom'
 import appLogo from '../logo.png'
 import SignInButton from '../components/SignInButton'
 
+const trimSlashes = (string) => {
+  const value = string.trim()
+  if (value[0] === '/') {
+    return trimSlashes(value.slice(1))
+  } else if (value[value.length - 1] === '/') {
+    return trimSlashes(value.slice(0, -1))
+  } else {
+    return value
+  }
+}
+
 const mapStateToProps = ({ user, lastLoad, enqueued }) => {
   return {
     user,
@@ -28,7 +39,10 @@ class Header extends Component {
 
   onSubmit = (e) => {
     e.preventDefault()
-    if (`/${this.state.inputValue}` !== this.props.match.url) {
+    const url = trimSlashes(this.state.inputValue)
+    this.setState({ inputValue: url })
+
+    if (`/${url}` !== this.props.match.url) {
       this.setState({ redirect: true })
     }
   }
@@ -76,9 +90,7 @@ class Header extends Component {
                   name="feed"
                   value={this.state.inputValue} />
 
-                <input className="f6 mb1 bn bg-animate bg-near-black hover-bg-gray white pointer br2-ns"
-                  type="submit"
-                  value="search" />
+                <input className="dn" type="submit" value="search" />
               </div>
           </form>
         </div>

@@ -61,6 +61,7 @@ export default (state = initialState, action) => {
           ...state.pages,
           [action.path]: updatedList.slice(0, 100)
         },
+        error: null,
         loading: false
       }
     case types.REQUEST_NEXT_PAGE:
