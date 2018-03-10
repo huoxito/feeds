@@ -7,10 +7,10 @@ import { withRouter } from 'react-router-dom'
 import appLogo from '../logo.png'
 import SignInButton from '../components/SignInButton'
 
-const mapStateToProps = ({ user, pages, lastLoad }, ownProps) => {
+const mapStateToProps = ({ user, lastLoad, enqueued }) => {
   return {
     user,
-    count: (pages[ownProps.match.url] || []).length,
+    enqueued,
     lastLoad
   }
 }
@@ -48,7 +48,7 @@ class Header extends Component {
   }
 
   render () {
-    const { user, count, lastLoad } = this.props
+    const { user, lastLoad, enqueued } = this.props
 
     if (this.state.redirect) {
       return <Redirect to={`/${this.state.inputValue}`} />
@@ -88,9 +88,8 @@ class Header extends Component {
         </div>
 
         {user && <span className='dbi f7 fw1 absolute mv2 mh2 bottom-0 right-0'>
-          listing {count} events
-          <span className='di-ns dn'>
-            , fetched at {lastLoad.toString()}
+          <span className={`di-ns dn ${!enqueued && 'underline'}`}>
+            {lastLoad.toTimeString()}
           </span>
         </span>}
       </header>

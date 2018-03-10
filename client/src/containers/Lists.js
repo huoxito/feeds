@@ -8,13 +8,12 @@ import { withRouter } from 'react-router-dom'
 const mapStateToProps = ({
   loading,
   starting,
-  path,
   user,
   pages,
   error,
   userEvents
 }) => {
-  return { loading, starting, path, user, pages, error, userEvents }
+  return { loading, starting, user, pages, error, userEvents }
 }
 
 const Lists = (props) => {

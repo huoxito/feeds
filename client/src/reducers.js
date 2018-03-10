@@ -3,7 +3,6 @@ import update from 'immutability-helper'
 
 export const initialState = {
   starting: true,
-  path: '/',
   loading: true,
   enqueued: false,
   user: null,
@@ -32,13 +31,6 @@ export default (state = initialState, action) => {
           '/': action.list
         },
         lastLoad: new Date()
-      }
-    case types.SET_PATH:
-      return {
-        ...state,
-        path: action.path,
-        error: null,
-        footerError: null
       }
     case types.ENQUEUE_REQUESTS_EVENTS:
       return {

@@ -12,7 +12,11 @@ import Lists from './containers/Lists'
 import Header from './containers/Header'
 import Footer from './containers/Footer'
 import reducer from './reducers'
-import { fetchSession, switchEventsList } from './actions'
+import {
+  enqueueRequestEvents,
+  fetchEvents,
+  fetchSession
+} from './actions'
 
 const store = createStore(
   reducer,
@@ -27,18 +31,35 @@ class App extends Component {
   componentDidMount () {
     const { url } = this.props.match
     store.dispatch(fetchSession(url))
+    const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
+    return wait(3 * 1000).then(this.enqueueEvents())
   }
 
   componentDidUpdate () {
     const { url } = this.props.match
-    store.dispatch(switchEventsList(url))
+    store.dispatch(fetchEvents(url))
+  }
+
+  enqueueEvents () {
+    const time = 30
+    const { url } = this.props.match
+    store.dispatch(enqueueRequestEvents(url))
+
+    const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
+    return wait(time * 1000).then(
+      () => {
+        const { url } = this.props.match
+        store.dispatch(fetchEvents(url))
+        wait(2 * 1000).then(() => this.enqueueEvents())
+      }
+    )
   }
 
   render () {
     return (
       <div className='helvetica w-80-ns w-100 mh3-ns'>
         <Header />
-        <Lists />
+        <Lists path={this.props.match.url} />
         <Footer />
       </div>
     )
