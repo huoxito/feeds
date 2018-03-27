@@ -115,7 +115,11 @@ get '/me' do
 end
 
 get '/feeds/:org-p' do
-  events = @client.organization_events params[:org], @page_args
+  begin
+    events = @client.organization_events params[:org], @page_args
+  rescue Octokit::NotFound
+    events = @client.user_events params[:org], @page_args
+  end
   {
     isAuthenticated: !session[:g_token].to_s.empty?,
     list: events.map(&:to_h)
@@ -139,7 +143,11 @@ get '/feeds/:org/?' do
     client_id: ENV['CLIENT_APP_ID'],
     client_secret: ENV['CLIENT_APP_SECRET']
   )
-  events = client.organization_public_events params[:org], @page_args
+  begin
+    events = client.organization_events params[:org], @page_args
+  rescue Octokit::NotFound
+    events = client.user_events params[:org], @page_args
+  end
   {
     isAuthenticated: !session[:g_token].to_s.empty?,
     list: events.map(&:to_h)

@@ -73,7 +73,7 @@ const receiveNextPage = (list, path) => {
 
 export function fetchNextPage(entries, path) {
   return (dispatch, getState) => {
-    const { pages, userOrganizations } = getState()
+    const { pages, userOrganizations, user } = getState()
 
     entries.forEach(entry => {
       const events = [].concat(...Object.values(pages))
@@ -84,10 +84,11 @@ export function fetchNextPage(entries, path) {
       dispatch(requestNextPage())
 
       let url
-      if (userOrganizations.indexOf(path.substr(1)) === -1) {
-        url = path
-      } else {
+      if ((user && path.substr(1) === user.login)
+        || userOrganizations.indexOf(path.substr(1)) !== -1) {
         url = `${path}-p`
+      } else {
+        url = path
       }
 
       url = `/feeds${url}?page=${pages[`${path}pageNumber`] || 2}`
@@ -135,15 +136,16 @@ class OrgNotFoundError extends Error {}
 
 export function fetchEvents(path) {
   return (dispatch, getState) => {
-    const { pages, userOrganizations } = getState()
+    const { pages, user, userOrganizations } = getState()
     const list = pages[path] || []
     dispatch(requestEvents(path, list.length === 0))
 
     let url
-    if (userOrganizations.indexOf(path.substr(1)) === -1) {
-      url = path
-    } else {
+    if ((user && path.substr(1) === user.login)
+      || userOrganizations.indexOf(path.substr(1)) !== -1) {
       url = `${path}-p`
+    } else {
+      url = path
     }
 
     const options = { method: 'GET', credentials: 'same-origin' }
