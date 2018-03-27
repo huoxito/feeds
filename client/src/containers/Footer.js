@@ -14,7 +14,7 @@ class Footer extends Component {
   }
 
   fetchEvents = (entries, observer) => {
-    this.props.dispatch(fetchNextPage(entries))
+    this.props.dispatch(fetchNextPage(entries, this.props.path))
   }
 
   render () {

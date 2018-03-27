@@ -71,9 +71,9 @@ const receiveNextPage = (list, path) => {
   }
 }
 
-export function fetchNextPage(entries) {
+export function fetchNextPage(entries, path) {
   return (dispatch, getState) => {
-    const { pages, path, userOrganizations } = getState()
+    const { pages, userOrganizations } = getState()
 
     entries.forEach(entry => {
       const events = [].concat(...Object.values(pages))

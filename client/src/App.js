@@ -60,7 +60,7 @@ class App extends Component {
       <div className='helvetica w-80-ns w-100 mh3-ns'>
         <Header />
         <Lists path={this.props.match.url} />
-        <Footer />
+        <Footer path={this.props.match.url} />
       </div>
     )
   }
