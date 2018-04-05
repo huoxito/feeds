@@ -1,4 +1,7 @@
 import React from 'react'
+import {
+  Link
+} from 'react-router-dom'
 
 export default ({ collection, header }) => {
   if (collection.length === 0) { return null }
@@ -22,8 +25,13 @@ export default ({ collection, header }) => {
 
         <ul className="list pl0 measure center">
           {repos.map(repo =>
-            <li key={repo} className="lh-copy pv2 ba bl-0 bt-0 br-0 b--dotted b--black-30">
-              <a href={`/${repo}`} className='link blue'>{repo}</a>
+            <li key={repo}
+              className="lh-copy pv2 ba bl-0 bt-0 br-0 b--dotted b--black-30"
+            >
+
+              <Link to={`/${repo}`} className='link blue'>
+                {repo}
+              </Link>
             </li>
           )}
         </ul>

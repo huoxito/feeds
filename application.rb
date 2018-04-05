@@ -37,12 +37,6 @@ before do
   @client = Octokit::Client.new @keys
 end
 
-after do
-  if request.path.start_with? '/feeds'
-    response.body = response.body.map(&:to_h).to_json
-  end
-end
-
 error Octokit::NotFound do
   status 404
 end
@@ -53,6 +47,11 @@ error Faraday::ConnectionFailed do
 end
 
 error Octokit::Unauthorized do
+  status 500
+  { error: env['sinatra.error'].message }.to_json
+end
+
+error Octokit::UnprocessableEntity do
   status 500
   { error: env['sinatra.error'].message }.to_json
 end
@@ -100,42 +99,69 @@ get '/me' do
   if session[:g_token]
     user = @client.user
     session[:login] = user[:login]
-    user.to_h.to_json
+    {
+      user: user.to_h,
+      organizations: @client.organizations.map(&:login),
+      userEvents: @client.user_events(session[:login]).map(&:to_h),
+      list: @client.received_events(session[:login]).map(&:to_h)
+    }.to_json
   else
-    raise Octokit::Unauthorized
-  end
-end
-
-get '/feeds/user' do
-  if session[:g_token]
-    @client.user_events session[:login]
-  else
-    raise Octokit::Unauthorized
+    {
+      user: nil,
+      userEvents: [],
+      list: @client.public_events.map(&:to_h)
+    }.to_json
   end
 end
 
 get '/feeds/:org-p' do
-  @client.organization_events params[:org], @page_args
-end
-
-get '/feeds' do
-  if session[:g_token] && session[:login]
-    @client.received_events session[:login], @page_args
-  else
-    @client.public_events @page_args
+  begin
+    events = @client.organization_events params[:org], @page_args
+  rescue Octokit::NotFound
+    events = @client.user_events params[:org], @page_args
   end
+  {
+    isAuthenticated: !session[:g_token].to_s.empty?,
+    list: events.map(&:to_h)
+  }.to_json
 end
 
-get '/feeds/:org' do
+get '/feeds/?' do
+  events = if session[:g_token] && session[:login]
+             @client.received_events session[:login], @page_args
+           else
+             @client.public_events @page_args
+           end
+  {
+    isAuthenticated: !session[:g_token].to_s.empty?,
+    list: events.map(&:to_h)
+  }.to_json
+end
+
+get '/feeds/:org/?' do
   client = Octokit::Client.new(
     client_id: ENV['CLIENT_APP_ID'],
     client_secret: ENV['CLIENT_APP_SECRET']
   )
-  client.organization_public_events params[:org], @page_args
+  begin
+    events = client.organization_events params[:org], @page_args
+  rescue Octokit::NotFound
+    events = client.user_events params[:org], @page_args
+  end
+  {
+    isAuthenticated: !session[:g_token].to_s.empty?,
+    list: events.map(&:to_h)
+  }.to_json
 end
 
 get '/feeds/:org/:repo' do
-  @client.repository_events "#{params[:org]}/#{params[:repo]}", @page_args
+  path = "#{params[:org]}/#{params[:repo]}"
+  events = @client.repository_events path, @page_args
+
+  {
+    isAuthenticated: !session[:g_token].to_s.empty?,
+    list: events.map(&:to_h)
+  }.to_json
 end
 
 get '/*' do
