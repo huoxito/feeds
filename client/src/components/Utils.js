@@ -107,7 +107,7 @@ const Summary = ({ events }) => {
 const Avatar = ({ actor }) =>
   <div className='mb4 mb0-ns ph3 dn db-ns'>
     <a href={`https://github.com/${actor.login}`} title={actor.login}>
-      <img src={actor.avatar_url}
+      <img src={`${actor.avatar_url}s=64&v=4`}
         className='br3 h2 w2 dib'
         alt={actor.login} title={actor.login} />
     </a>
