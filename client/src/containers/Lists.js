@@ -49,10 +49,10 @@ const Lists = (props) => {
         )}
       </section>
 
-      {props.user && <ProjectsList header="You've contributed to"
-                    collection={props.userEvents} />}
       {props.user && <ProjectsList header='Featured projects'
                     collection={allEvents} />}
+      {props.user && <ProjectsList header="You've contributed to"
+                    collection={props.userEvents} />}
     </div>
   )
 }

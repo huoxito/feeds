@@ -9,10 +9,6 @@ export default ({ collection, header }) => {
   let repos = []
 
   collection.forEach((ev) => {
-    if (ev.org && repos.indexOf(ev.org.login) === -1) {
-      repos.push(ev.org.login)
-    }
-
     if (ev.repo && repos.indexOf(ev.repo.name) === -1) {
       repos.push(ev.repo.name)
     }
@@ -29,8 +25,12 @@ export default ({ collection, header }) => {
               className="lh-copy pv2 ba bl-0 bt-0 br-0 b--dotted b--black-30"
             >
 
+              <Link to={`/${repo.split('/')[0]}`} className='link blue'>
+                {repo.split('/')[0]}
+              </Link>
+              {' '}/{' '}
               <Link to={`/${repo}`} className='link blue'>
-                {repo}
+                {repo.split('/')[1]}
               </Link>
             </li>
           )}
