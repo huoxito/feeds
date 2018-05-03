@@ -1,41 +1,41 @@
-import React from 'react'
-import {
-  Link
-} from 'react-router-dom'
+import React from "react";
+import { Link } from "react-router-dom";
 
 export default ({ collection, header }) => {
-  if (collection.length === 0) { return null }
+  if (collection.length === 0) {
+    return null;
+  }
 
-  let repos = []
+  let repos = [];
 
-  collection.forEach((ev) => {
+  collection.forEach(ev => {
     if (ev.repo && repos.indexOf(ev.repo.name) === -1) {
-      repos.push(ev.repo.name)
+      repos.push(ev.repo.name);
     }
-  })
+  });
 
   return (
-    <section className='db-ns dn fl w-30 pl3'>
+    <section className="db-ns dn fl w-30 pl3">
       <div className="f6 fw4 pa1 pa1-ns">
-        <h3 className='fw4 mb0'>{header}</h3>
+        <h3 className="fw4 mb0">{header}</h3>
 
         <ul className="list pl0 measure center">
-          {repos.map(repo =>
-            <li key={repo}
+          {repos.map(repo => (
+            <li
+              key={repo}
               className="lh-copy pv2 ba bl-0 bt-0 br-0 b--dotted b--black-30"
             >
-
-              <Link to={`/${repo.split('/')[0]}`} className='link blue'>
-                {repo.split('/')[0]}
-              </Link>
-              {' '}/{' '}
-              <Link to={`/${repo}`} className='link blue'>
-                {repo.split('/')[1]}
+              <Link to={`/${repo.split("/")[0]}`} className="link blue">
+                {repo.split("/")[0]}
+              </Link>{" "}
+              /{" "}
+              <Link to={`/${repo}`} className="link blue">
+                {repo.split("/")[1]}
               </Link>
             </li>
-          )}
+          ))}
         </ul>
       </div>
     </section>
-  )
-}
+  );
+};
