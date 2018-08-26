@@ -12,7 +12,7 @@ GEM
     httpauth (0.2.1)
     multi_json (1.12.2)
     multipart-post (2.0.0)
-    mustermann (1.0.0)
+    mustermann (1.0.3)
     oauth2 (0.6.1)
       faraday (~> 0.7)
       httpauth (~> 0.1)
@@ -20,17 +20,17 @@ GEM
     octokit (4.7.0)
       sawyer (~> 0.8.0, >= 0.5.3)
     public_suffix (2.0.5)
-    puma (3.6.2)
-    rack (2.0.3)
-    rack-protection (2.0.0)
+    puma (3.12.0)
+    rack (2.0.5)
+    rack-protection (2.0.3)
       rack
     sawyer (0.8.1)
       addressable (>= 2.3.5, < 2.6)
       faraday (~> 0.8, < 1.0)
-    sinatra (2.0.0)
+    sinatra (2.0.3)
       mustermann (~> 1.0)
       rack (~> 2.0)
-      rack-protection (= 2.0.0)
+      rack-protection (= 2.0.3)
       tilt (~> 2.0)
     tilt (2.0.8)
 
@@ -47,4 +47,4 @@ DEPENDENCIES
   sinatra
 
 BUNDLED WITH
-   1.15.4
+   1.16.3
