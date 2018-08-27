@@ -102,14 +102,12 @@ get '/me' do
     {
       user: user.to_h,
       organizations: @client.organizations.map(&:login),
-      userEvents: @client.user_events(session[:login]).map(&:to_h),
-      list: @client.received_events(session[:login]).map(&:to_h)
+      userEvents: @client.user_events(session[:login]).map(&:to_h)
     }.to_json
   else
     {
       user: nil,
-      userEvents: [],
-      list: @client.public_events.map(&:to_h)
+      userEvents: []
     }.to_json
   end
 end

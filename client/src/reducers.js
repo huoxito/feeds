@@ -2,9 +2,10 @@ import * as types from "./actions";
 import update from "immutability-helper";
 
 export const initialState = {
-  starting: true,
+  firstLoad: true,
   loading: true,
   enqueued: false,
+  needsAuth: null,
   user: null,
   userOrganizations: [],
   userEvents: [],
@@ -22,14 +23,11 @@ export default (state = initialState, action) => {
     case types.RECEIVE_SESSION:
       return {
         ...state,
-        starting: false,
-        loading: false,
+        loading: true,
         user: action.user,
+        needsAuth: !action.user,
         userOrganizations: action.organizations || [],
         userEvents: action.userEvents,
-        pages: {
-          "/": action.list
-        },
         lastLoad: new Date()
       };
     case types.ENQUEUE_REQUESTS_EVENTS:
@@ -57,6 +55,7 @@ export default (state = initialState, action) => {
 
       return {
         ...state,
+        firstLoad: false,
         pages: {
           ...state.pages,
           [action.path]: updatedList.slice(0, 100)

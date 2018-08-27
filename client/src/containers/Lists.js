@@ -17,16 +17,6 @@ const mapStateToProps = ({
 };
 
 const Lists = props => {
-  if (props.starting) {
-    return (
-      <section className="mw7 pl3 helvetica">
-        <header className="relative mt2 mb2 ph2 h-100">
-          <span className="pa3">Starting session ..</span>
-        </header>
-      </section>
-    );
-  }
-
   if (props.loading) {
     return (
       <section className="mw7 pl3 helvetica">
