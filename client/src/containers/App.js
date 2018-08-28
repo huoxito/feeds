@@ -20,37 +20,34 @@ class App extends Component {
   componentDidMount() {
     const { url } = this.props.match;
     this.props.dispatch(fetchSession(url));
-    console.log("---------- componentDidMount");
-  }
-
-  componentDidUpdate() {
-    console.log("---------- componentDidUpdate");
-
-    const { url } = this.props.match;
-    const { firstLoad, user, needsAuth } = this.props;
-    console.log({ url, user, needsAuth, firstLoad });
-
-    if (url === "/" && user === null) {
-      return;
-    }
-
-    this.props.dispatch(fetchEvents(url));
-
     const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     return wait(3 * 1000).then(this.enqueueEvents());
   }
 
+  componentDidUpdate() {
+    const { match, user } = this.props;
+    if (match.url === "/" && user === null) {
+      return;
+    }
+
+    this.props.dispatch(fetchEvents(match.url));
+  }
+
   enqueueEvents() {
-    console.log("---------- enqueueEvents");
     const time = 30;
     const { url } = this.props.match;
     this.props.dispatch(enqueueRequestEvents(url));
 
     const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     return wait(time * 1000).then(() => {
-      const { url } = this.props.match;
-      this.props.dispatch(fetchEvents(url));
+      const { match, user } = this.props;
+
       wait(2 * 1000).then(() => this.enqueueEvents());
+      if (match.url === "/" && user === null) {
+        return;
+      }
+
+      this.props.dispatch(fetchEvents(match.url));
     });
   }
 
