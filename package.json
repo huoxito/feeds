@@ -1,0 +1,14 @@
+{
+  "name": "client",
+  "version": "0.1.0",
+  "description": "some",
+  "private": true,
+  "engines": {
+    "node": "10.10.0",
+    "yarn": "1.9.4"
+  },
+  "cacheDirectories": ["client/node_modules"],
+  "scripts": {
+    "postinstall": "cd client && yarn && yarn build"
+  }
+}

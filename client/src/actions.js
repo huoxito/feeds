@@ -109,19 +109,14 @@ export function fetchNextPage(entries, path) {
 }
 
 export function fetchSession(path) {
-  return (dispatch, getState) => {
+  return async (dispatch, getState) => {
     dispatch(requestSession());
 
     const options = { method: "GET", credentials: "same-origin" };
-    fetch("/me", options)
-      .then(response => response.json())
-      .then(body => {
-        if (!body.error) {
-          dispatch(receiveSession(body));
-        }
-
-        dispatch(fetchEvents(path));
-      });
+    const response = await fetch("/me", options).then(res => res.json());
+    if (!response.error) {
+      dispatch(receiveSession(response));
+    }
   };
 }
 
