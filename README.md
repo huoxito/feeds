@@ -31,10 +31,10 @@ Visit localhost:4567/auth for github oauth.
 
 ### Deploy
 
-Configure heroku cli and add heroku git remote url (deploy script expects a remote named "heroku").
+Configure heroku cli and add heroku git remote url.
 
 ```
-./deploy.sh
+git push heroku master
 ```
 
 ### THE MIT License
