@@ -62,14 +62,14 @@ class Header extends Component {
   }
 
   render() {
-    const { user, lastLoad, enqueued } = this.props;
+    const { user } = this.props;
 
     if (this.state.redirect) {
       return <Redirect to={`/${this.state.inputValue}`} />;
     }
 
     return (
-      <header className="relative pv2 bb b--black-10 h-100">
+      <header className="flex pv2 bb b--black-10 h-100">
         <Link to="/" className="link black">
           <img
             src={appLogo}
@@ -79,12 +79,11 @@ class Header extends Component {
           />
         </Link>
 
-        <div className="dib w-60">
-          <form className="mw7 center br2-ns" onSubmit={this.onSubmit}>
+        <div className="w-100 mt1">
+          <form className="br2-ns pr1" onSubmit={this.onSubmit}>
             <div className="flex">
-              <p className="dib pa1 ma0">/ </p>
               <input
-                className="f6 bn pa2 black-80 bg-white w-100 w-75-m w-80-l br2-ns br--left-ns"
+                className="f6 bn pa2 black-80 w-100 bg-white br2-ns br--left-ns"
                 placeholder=":user/:repo"
                 type="text"
                 onChange={this.onChange}
@@ -98,14 +97,10 @@ class Header extends Component {
           </form>
         </div>
 
-        <div className="dib absolute right-0">{!user && <SignInButton />}</div>
-
-        {user && (
-          <span className="dbi f7 fw1 absolute mv2 mh2 bottom-0 right-0">
-            <span className={`di-ns dn ${!enqueued && "underline"}`}>
-              {lastLoad.toTimeString()}
-            </span>
-          </span>
+        {!user && (
+          <div className="w-25 self-end">
+            <SignInButton />
+          </div>
         )}
       </header>
     );

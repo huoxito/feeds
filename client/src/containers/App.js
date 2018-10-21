@@ -54,7 +54,7 @@ class App extends Component {
   }
 
   render() {
-    const { match, firstLoad, user, urlUpdated } = this.props;
+    const { match, firstLoad, user } = this.props;
     if (firstLoad || (match.url === "/" && user === null)) {
       return <Placeholder path={match.url} />;
     }
