@@ -1,0 +1,2 @@
+server: bundle exec puma -C config/puma.rb
+client: cd client && yarn && yarn start

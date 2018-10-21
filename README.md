@@ -13,23 +13,21 @@ Set these on your local .env and / or on heroku:
 CLIENT_APP_ID=client-id-from-github-oauth-app
 CLIENT_APP_SECRET=client-secret-from-github-oauth-app
 SECRET_COOKIE=crazy-random-string
+PORT=4567
+WEB_CONCURRENCY=1
 ```
 
 ### Development
 
-Start sinatra application with:
+Start application with:
 
 ```
-./application.rb
+gem install foreman
+foreman start
 ```
 
 Visit localhost:4567/auth for github oauth. 
 
-Start react app:
-
-```
-cd client && yarn start 
-```
 
 ### Deploy
 
