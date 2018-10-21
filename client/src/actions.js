@@ -1,9 +1,12 @@
+import NProgress from "nprogress";
+
 export const REQUEST_EVENTS = "REQUEST_EVENTS";
-const requestEvents = (path, loading = false) => {
+const requestEvents = ({ path, loading, urlUpdated }) => {
   return {
     type: REQUEST_EVENTS,
     path,
-    loading
+    loading,
+    urlUpdated
   };
 };
 
@@ -122,11 +125,11 @@ export function fetchSession(path) {
 
 class OrgNotFoundError extends Error {}
 
-export function fetchEvents(path) {
+export function fetchEvents({ path, urlUpdated }) {
   return (dispatch, getState) => {
     const { pages, user, userOrganizations } = getState();
     const list = pages[path] || [];
-    dispatch(requestEvents(path, list.length === 0));
+    dispatch(requestEvents({ path, urlUpdated, loading: list.length === 0 }));
 
     let url;
     if (
@@ -157,8 +160,10 @@ export function fetchEvents(path) {
         const events = body.list.filter(e => ids.indexOf(e.id) === -1);
 
         dispatch(receiveEvents(path, events));
+        NProgress.done();
       })
       .catch(error => {
+        NProgress.done();
         dispatch(receiveEventsFailed(error.message));
       });
   };

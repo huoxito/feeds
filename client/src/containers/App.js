@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import NProgress from "nprogress";
 
 import Placeholder from "./Placeholder";
 import Lists from "./Lists";
@@ -30,7 +31,8 @@ class App extends Component {
       return;
     }
 
-    this.props.dispatch(fetchEvents(match.url));
+    NProgress.start();
+    this.props.dispatch(fetchEvents({ path: match.url, urlUpdated: true }));
   }
 
   enqueueEvents() {
@@ -47,12 +49,12 @@ class App extends Component {
         return;
       }
 
-      this.props.dispatch(fetchEvents(match.url));
+      this.props.dispatch(fetchEvents({ path: match.url }));
     });
   }
 
   render() {
-    const { match, firstLoad, user } = this.props;
+    const { match, firstLoad, user, urlUpdated } = this.props;
     if (firstLoad || (match.url === "/" && user === null)) {
       return <Placeholder path={match.url} />;
     }

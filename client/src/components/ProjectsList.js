@@ -1,8 +1,13 @@
 import React from "react";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 
-export default ({ collection, header }) => {
-  if (collection.length === 0) {
+const mapStateToProps = ({ urlUpdated }) => {
+  return { urlUpdated };
+};
+
+const ProjectsLists = ({ collection, header, urlUpdated }) => {
+  if (collection.length === 0 || urlUpdated) {
     return null;
   }
 
@@ -39,3 +44,5 @@ export default ({ collection, header }) => {
     </section>
   );
 };
+
+export default connect(mapStateToProps)(ProjectsLists);
