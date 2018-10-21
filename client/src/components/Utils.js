@@ -79,7 +79,7 @@ const eventAction = events => {
 const richContent = content => (
   <p
     className="f6 fw3 ma0 lh-copy"
-    dangerouslySetInnerHTML={{ __html: Marked(content.toString()) }}
+    dangerouslySetInnerHTML={{ __html: Marked(content || "") }}
   />
 );
 
