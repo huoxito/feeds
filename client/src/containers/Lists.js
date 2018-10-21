@@ -32,7 +32,7 @@ const Lists = props => {
 
   return (
     <div className="cf w-100">
-      <section className="fl w-70-ns w-100">
+      <section className="fl w-70-ns w-100-m w-100">
         <ErrorBanner message={props.error} />
         {list.map(events => <Events key={events.id} events={events} />)}
       </section>

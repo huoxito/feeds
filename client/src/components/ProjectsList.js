@@ -15,7 +15,7 @@ export default ({ collection, header }) => {
   });
 
   return (
-    <section className="db-ns dn fl w-30 pl3">
+    <section className="db-ns dn-m dn fl w-30 pl3">
       <div className="f6 fw4 pa1 pa1-ns">
         <h3 className="fw4 mb0">{header}</h3>
 

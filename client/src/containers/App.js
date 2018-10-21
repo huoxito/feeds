@@ -58,10 +58,12 @@ class App extends Component {
     }
 
     return (
-      <div className="helvetica w-80-ns w-100 mh3-ns">
-        <Header />
-        <Lists path={match.url} />
-        <Footer path={match.url} />
+      <div className="bg-washed-blue">
+        <div className="helvetica w-80-ns w-100 mh3-ns">
+          <Header />
+          <Lists path={match.url} />
+          <Footer path={match.url} />
+        </div>
       </div>
     );
   }

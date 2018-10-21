@@ -69,7 +69,7 @@ class Header extends Component {
     }
 
     return (
-      <header className="relative mv2 pb1 bb b--black-10 h-100">
+      <header className="relative pv2 bb b--black-10 h-100">
         <Link to="/" className="link black">
           <img
             src={appLogo}
@@ -84,7 +84,7 @@ class Header extends Component {
             <div className="flex">
               <p className="dib pa1 ma0">/ </p>
               <input
-                className="f6 bn black-80 bg-white w-100 w-75-m w-80-l br2-ns br--left-ns"
+                className="f6 bn pa2 black-80 bg-white w-100 w-75-m w-80-l br2-ns br--left-ns"
                 placeholder=":user/:repo"
                 type="text"
                 onChange={this.onChange}

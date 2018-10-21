@@ -43,7 +43,9 @@ const PushEvent = ({ events }) => {
 };
 
 const CommentEvent = ({ events }) => (
-  <section>{richContent(events.payload.comment.body)}</section>
+  <section className="bg-white mt2 pl2">
+    {richContent(events.payload.comment.body)}
+  </section>
 );
 
 const IssueCommentEvent = CommentEvent;
@@ -59,7 +61,7 @@ const PullRequestEvent = ({ events }) => {
   );
 
   return (
-    <section>
+    <section className="bg-white mt2 pa2">
       <Header title={events.payload.pull_request.title} />
 
       {events.payload.pull_request.merged &&
@@ -72,7 +74,7 @@ const PullRequestEvent = ({ events }) => {
 };
 
 const IssuesEvent = ({ events }) => (
-  <section>
+  <section className="bg-white mt2 pa2">
     <Header title={events.payload.issue.title} />
 
     {events.payload.action === "opened" &&
