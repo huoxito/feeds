@@ -101,6 +101,15 @@ const Summary = ({ events }) => {
     <div className="relative fw4 f6 lh-copy mv0">
       <span className="dn-ns di">{events.actor.login} </span>
       {eventAction(events)}
+      {events.type === "MemberEvent" && (
+        <a
+          href={`https://github.com/${events.payload.member.login}`}
+          className="link blue"
+        >
+          {events.payload.member.login}
+        </a>
+      )}
+      {events.type === "MemberEvent" && " to "}
       {events.type === "PushEvent" && <BranchLink events={events} />}
       {events.type === "PushEvent" && " at "}
       {events.type === "CreateEvent" && <BranchLink events={events} />}
