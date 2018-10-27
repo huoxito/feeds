@@ -9,12 +9,31 @@ import SignInButton from "../components/SignInButton";
 
 const trimSlashes = string => {
   const value = string.trim();
-  if (value[0] === "/") {
-    return trimSlashes(value.slice(1));
-  } else if (value[value.length - 1] === "/") {
-    return trimSlashes(value.slice(0, -1));
+  const [user, repo] = string.split("/");
+
+  if (repo) {
+    return `${user.trim()}/${repo.trim()}`;
   } else {
-    return value;
+    return user.trim() || "";
+  }
+};
+
+const buildDisplayValue = input => {
+  if (input[input.length - 1] === "/") {
+    return `${input.slice(0, -1)} / `;
+  }
+
+  if (input[input.length - 1] === " ") {
+    return `${input.slice(0, -1)} / `;
+  }
+
+  const [user, repo] = input.split("/");
+  console.log({ user, repo });
+
+  if (repo) {
+    return `${user.trim()} / ${repo.trim()}`;
+  } else {
+    return user.trim() || "";
   }
 };
 
@@ -28,13 +47,14 @@ const mapStateToProps = ({ user, lastLoad, enqueued }) => {
 
 class Header extends Component {
   state = {
-    inputValue: this.props.match.url.substr(1),
+    inputValue: buildDisplayValue(this.props.match.url.substr(1)),
     redirect: false
   };
 
   onChange = e => {
     e.preventDefault();
-    this.setState({ inputValue: e.target.value });
+    const inputValue = e.target.value;
+    this.setState({ inputValue });
   };
 
   onSubmit = e => {
@@ -48,7 +68,9 @@ class Header extends Component {
   };
 
   onBlur = () => {
-    this.setState({ inputValue: this.props.match.url.substr(1) });
+    this.setState({
+      inputValue: buildDisplayValue(this.props.match.url.substr(1))
+    });
   };
 
   componentWillReceiveProps(nextProps) {
@@ -57,7 +79,9 @@ class Header extends Component {
     }
 
     if (`/${this.state.inputValue}` !== this.props.match.url) {
-      this.setState({ inputValue: this.props.match.url.substr(1) });
+      this.setState({
+        inputValue: buildDisplayValue(this.props.match.url.substr(1))
+      });
     }
   }
 
@@ -84,7 +108,7 @@ class Header extends Component {
             <div className="flex">
               <input
                 className="f6 bn pa2 black-80 w-100 bg-white br2-ns br--left-ns"
-                placeholder=":user/:repo"
+                placeholder="user / repo"
                 type="text"
                 onChange={this.onChange}
                 onBlur={this.onBlur}
