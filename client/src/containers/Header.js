@@ -9,12 +9,31 @@ import SignInButton from "../components/SignInButton";
 
 const trimSlashes = string => {
   const value = string.trim();
-  if (value[0] === "/") {
-    return trimSlashes(value.slice(1));
-  } else if (value[value.length - 1] === "/") {
-    return trimSlashes(value.slice(0, -1));
+  const [user, repo] = string.split("/");
+
+  if (repo) {
+    return `${user.trim()}/${repo.trim()}`;
   } else {
-    return value;
+    return user.trim() || "";
+  }
+};
+
+const buildDisplayValue = input => {
+  if (input[input.length - 1] === "/") {
+    return `${input.slice(0, -1)} / `;
+  }
+
+  if (input[input.length - 1] === " ") {
+    return `${input.slice(0, -1)} / `;
+  }
+
+  const [user, repo] = input.split("/");
+  console.log({ user, repo });
+
+  if (repo) {
+    return `${user.trim()} / ${repo.trim()}`;
+  } else {
+    return user.trim() || "";
   }
 };
 
@@ -28,13 +47,14 @@ const mapStateToProps = ({ user, lastLoad, enqueued }) => {
 
 class Header extends Component {
   state = {
-    inputValue: this.props.match.url.substr(1),
+    inputValue: buildDisplayValue(this.props.match.url.substr(1)),
     redirect: false
   };
 
   onChange = e => {
     e.preventDefault();
-    this.setState({ inputValue: e.target.value });
+    const inputValue = e.target.value;
+    this.setState({ inputValue });
   };
 
   onSubmit = e => {
@@ -48,7 +68,9 @@ class Header extends Component {
   };
 
   onBlur = () => {
-    this.setState({ inputValue: this.props.match.url.substr(1) });
+    this.setState({
+      inputValue: buildDisplayValue(this.props.match.url.substr(1))
+    });
   };
 
   componentWillReceiveProps(nextProps) {
@@ -57,19 +79,21 @@ class Header extends Component {
     }
 
     if (`/${this.state.inputValue}` !== this.props.match.url) {
-      this.setState({ inputValue: this.props.match.url.substr(1) });
+      this.setState({
+        inputValue: buildDisplayValue(this.props.match.url.substr(1))
+      });
     }
   }
 
   render() {
-    const { user, lastLoad, enqueued } = this.props;
+    const { user } = this.props;
 
     if (this.state.redirect) {
       return <Redirect to={`/${this.state.inputValue}`} />;
     }
 
     return (
-      <header className="relative mv2 pb1 bb b--black-10 h-100">
+      <header className="flex pv2 bb b--black-10 h-100">
         <Link to="/" className="link black">
           <img
             src={appLogo}
@@ -79,13 +103,12 @@ class Header extends Component {
           />
         </Link>
 
-        <div className="dib w-60">
-          <form className="mw7 center br2-ns" onSubmit={this.onSubmit}>
+        <div className="w-100 mt1">
+          <form className="br2-ns pr1" onSubmit={this.onSubmit}>
             <div className="flex">
-              <p className="dib pa1 ma0">/ </p>
               <input
-                className="f6 bn black-80 bg-white w-100 w-75-m w-80-l br2-ns br--left-ns"
-                placeholder=":user/:repo"
+                className="f6 bn pa2 black-80 w-100 bg-white br2-ns br--left-ns"
+                placeholder="user / repo"
                 type="text"
                 onChange={this.onChange}
                 onBlur={this.onBlur}
@@ -98,14 +121,10 @@ class Header extends Component {
           </form>
         </div>
 
-        <div className="dib absolute right-0">{!user && <SignInButton />}</div>
-
-        {user && (
-          <span className="dbi f7 fw1 absolute mv2 mh2 bottom-0 right-0">
-            <span className={`di-ns dn ${!enqueued && "underline"}`}>
-              {lastLoad.toTimeString()}
-            </span>
-          </span>
+        {!user && (
+          <div className="w-25 self-end">
+            <SignInButton />
+          </div>
         )}
       </header>
     );

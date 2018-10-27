@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import NProgress from "nprogress";
 
 import Placeholder from "./Placeholder";
 import Lists from "./Lists";
@@ -30,7 +31,8 @@ class App extends Component {
       return;
     }
 
-    this.props.dispatch(fetchEvents(match.url));
+    NProgress.start();
+    this.props.dispatch(fetchEvents({ path: match.url, urlUpdated: true }));
   }
 
   enqueueEvents() {
@@ -47,7 +49,7 @@ class App extends Component {
         return;
       }
 
-      this.props.dispatch(fetchEvents(match.url));
+      this.props.dispatch(fetchEvents({ path: match.url }));
     });
   }
 
@@ -58,10 +60,12 @@ class App extends Component {
     }
 
     return (
-      <div className="helvetica w-80-ns w-100 mh3-ns">
-        <Header />
-        <Lists path={match.url} />
-        <Footer path={match.url} />
+      <div className="bg-washed-blue">
+        <div className="helvetica w-80-ns w-100 mh3-ns">
+          <Header />
+          <Lists path={match.url} />
+          <Footer path={match.url} />
+        </div>
       </div>
     );
   }

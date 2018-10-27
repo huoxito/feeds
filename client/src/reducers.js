@@ -41,7 +41,8 @@ export default (state = initialState, action) => {
         ...state,
         lastLoad: new Date(),
         enqueued: false,
-        loading: action.loading
+        loading: action.loading,
+        urlUpdated: action.urlUpdated
       };
     case types.RECEIVE_EVENTS_FAILED:
       return {
@@ -61,7 +62,8 @@ export default (state = initialState, action) => {
           [action.path]: updatedList.slice(0, 100)
         },
         error: null,
-        loading: false
+        loading: false,
+        urlUpdated: false
       };
     case types.REQUEST_NEXT_PAGE:
       return {
