@@ -12,7 +12,7 @@
     "react-dom": "^16.0.0",
     "react-redux": "^5.0.6",
     "react-router-dom": "^4.2.2",
-    "react-scripts": "1.1.4",
+    "react-scripts": "2.0.3",
     "redux": "^3.7.2",
     "redux-devtools-extension": "^2.13.5",
     "redux-thunk": "^2.2.0",
@@ -26,5 +26,11 @@
     "eject": "react-scripts eject",
     "css": "tachyons src/App.css > src/index.css --minify"
   },
-  "proxy": "http://localhost:4567"
+  "proxy": "http://localhost:4567",
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }
