@@ -9,6 +9,7 @@ export const initialState = {
   user: null,
   userOrganizations: [],
   userEvents: [],
+  isAuthenticated: false,
   pages: {
     "/": [],
     "/pageNumber": 1
@@ -26,6 +27,7 @@ export default (state = initialState, action) => {
         loading: true,
         user: action.user,
         needsAuth: !action.user,
+        isAuthenticated: !!action.user,
         userOrganizations: action.organizations || [],
         userEvents: action.userEvents,
         lastLoad: new Date()
@@ -54,16 +56,29 @@ export default (state = initialState, action) => {
       const list = state.pages[action.path] || [];
       const updatedList = update(list, { $unshift: action.list });
 
-      return {
+      const common = {
         ...state,
         firstLoad: false,
+        isAuthenticated: action.isAuthenticated,
+        loading: false,
+        urlUpdated: false
+      };
+
+      if (state.isAuthenticated && !action.isAuthenticated) {
+        return {
+          ...common,
+          isAuthenticated: action.isAuthenticated,
+          error: "Lost connection, please sign in again"
+        };
+      }
+
+      return {
+        ...common,
         pages: {
           ...state.pages,
           [action.path]: updatedList.slice(0, 100)
         },
-        error: null,
-        loading: false,
-        urlUpdated: false
+        error: null
       };
     case types.REQUEST_NEXT_PAGE:
       return {

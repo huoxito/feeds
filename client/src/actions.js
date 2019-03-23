@@ -11,11 +11,12 @@ const requestEvents = ({ path, loading, urlUpdated }) => {
 };
 
 export const RECEIVE_EVENTS = "RECEIVE_EVENTS";
-const receiveEvents = (path, list) => {
+const receiveEvents = (path, list, isAuthenticated) => {
   return {
     type: RECEIVE_EVENTS,
     path,
-    list
+    list,
+    isAuthenticated
   };
 };
 
@@ -151,15 +152,16 @@ export function fetchEvents({ path, urlUpdated }) {
 
           return response.json();
         },
-        error => console.log("shit")
+        error => console.log(error)
       )
       .then(body => {
         const { pages } = getState();
         const list = pages[path] || [];
         const ids = list.map(e => e.id);
         const events = body.list.filter(e => ids.indexOf(e.id) === -1);
+        const isAuthenticated = body.isAuthenticated;
 
-        dispatch(receiveEvents(path, events));
+        dispatch(receiveEvents(path, events, isAuthenticated));
         NProgress.done();
       })
       .catch(error => {
