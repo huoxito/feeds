@@ -28,7 +28,6 @@ const buildDisplayValue = input => {
   }
 
   const [user, repo] = input.split("/");
-  console.log({ user, repo });
 
   if (repo) {
     return `${user.trim()} / ${repo.trim()}`;

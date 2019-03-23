@@ -68,6 +68,7 @@ export default (state = initialState, action) => {
         return {
           ...common,
           isAuthenticated: action.isAuthenticated,
+          loggedOut: true,
           error: "Lost connection, please sign in again"
         };
       }

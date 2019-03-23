@@ -123,7 +123,12 @@ class OrgNotFoundError extends Error {}
 
 export function fetchEvents({ path, urlUpdated }) {
   return (dispatch, getState) => {
-    const { pages, user, userOrganizations } = getState();
+    const { pages, user, userOrganizations, loggedOut } = getState();
+
+    if (loggedOut) {
+      return;
+    }
+
     const list = pages[path] || [];
     dispatch(requestEvents({ path, urlUpdated, loading: list.length === 0 }));
 
