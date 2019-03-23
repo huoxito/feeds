@@ -14,23 +14,25 @@ const Lists = props => {
   const allEvents = [].concat(...Object.values(props.pages));
 
   return (
-    <div className="cf w-100">
-      <section className="fl w-70-ns w-100-m w-100">
-        <ErrorBanner message={props.error} />
-        {list.map(events => <Events key={events.id} events={events} />)}
-      </section>
+    <React.Fragment>
+      <ErrorBanner message={props.error} />
+      <div className={`cf w-100 ${props.error && "o-10"}`}>
+        <section className="fl w-70-ns w-100-m w-100">
+          {list.map(events => <Events key={events.id} events={events} />)}
+        </section>
 
-      {props.user && (
-        <ProjectsList
-          header="You've been involved in:"
-          collection={props.userEvents}
-        />
-      )}
+        {props.user && (
+          <ProjectsList
+            header="You've been involved in:"
+            collection={props.userEvents}
+          />
+        )}
 
-      {props.user && (
-        <ProjectsList header="Featured projects" collection={allEvents} />
-      )}
-    </div>
+        {props.user && (
+          <ProjectsList header="Featured projects" collection={allEvents} />
+        )}
+      </div>
+    </React.Fragment>
   );
 };
 

@@ -6,8 +6,8 @@ export default ({ message }) => {
   }
 
   return (
-    <div className="dib pa2 red">
-      <span className="lh-title ml3">{message}</span>
+    <div className="absolute vh-100 dt w-100 red">
+      <span className="dtc v-mid tc">{message}</span>
     </div>
   );
 };
