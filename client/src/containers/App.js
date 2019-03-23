@@ -17,11 +17,12 @@ const mapStateToProps = ({ firstLoad, user, needsAuth }) => {
   };
 };
 
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 class App extends Component {
   componentDidMount() {
     const { url } = this.props.match;
     this.props.dispatch(fetchSession(url));
-    const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     return wait(3 * 1000).then(this.enqueueEvents());
   }
 
@@ -40,7 +41,6 @@ class App extends Component {
     const { url } = this.props.match;
     this.props.dispatch(enqueueRequestEvents(url));
 
-    const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     return wait(time * 1000).then(() => {
       const { match, user } = this.props;
 

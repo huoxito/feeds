@@ -87,17 +87,12 @@ export function fetchNextPage(entries, path) {
 
       dispatch(requestNextPage());
 
-      let url;
-      if (
+      const privateList =
         (user && path.substr(1) === user.login) ||
-        userOrganizations.indexOf(path.substr(1)) !== -1
-      ) {
-        url = `${path}-p`;
-      } else {
-        url = path;
-      }
+        userOrganizations.indexOf(path.substr(1)) !== -1;
 
-      url = `/feeds${url}?page=${pages[`${path}pageNumber`] || 2}`;
+      const urlPath = `/feeds${path}${(privateList && "-p") || ""}`;
+      const url = `/${urlPath}?page=${pages[`${path}pageNumber`] || 2}`;
       fetch(url, { method: "GET", credentials: "same-origin" })
         .then(response => response.json())
         .then(body => {
@@ -132,18 +127,13 @@ export function fetchEvents({ path, urlUpdated }) {
     const list = pages[path] || [];
     dispatch(requestEvents({ path, urlUpdated, loading: list.length === 0 }));
 
-    let url;
-    if (
+    const privateList =
       (user && path.substr(1) === user.login) ||
-      userOrganizations.indexOf(path.substr(1)) !== -1
-    ) {
-      url = `${path}-p`;
-    } else {
-      url = path;
-    }
+      userOrganizations.indexOf(path.substr(1)) !== -1;
 
+    const urlPath = `/feeds${path}${(privateList && "-p") || ""}`;
     const options = { method: "GET", credentials: "same-origin" };
-    return fetch(`/feeds${url}`, options)
+    return fetch(urlPath, options)
       .then(
         response => {
           if (response.status === 404) {
