@@ -6,23 +6,23 @@ import { composeWithDevTools } from "redux-devtools-extension";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 
 import reducer from "./reducers";
-import App from "./containers/App";
+import Root from "./containers/Root";
 
 const store = createStore(
   reducer,
   composeWithDevTools(applyMiddleware(thunkMiddleware))
 );
 
-class Root extends Component {
+class App extends Component {
   render() {
     return (
       <Provider store={store}>
         <Router>
-          <Route path="/:org?/:repo?" component={App} />
+          <Route path="/:org?/:repo?" component={Root} />
         </Router>
       </Provider>
     );
   }
 }
 
-export default Root;
+export default App;

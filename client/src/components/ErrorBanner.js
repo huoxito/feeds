@@ -6,7 +6,7 @@ export default ({ message }) => {
   }
 
   return (
-    <div className="absolute vh-100 dt w-100 red">
+    <div className="fixed vh-100 dt w-100 red">
       <span className="dtc v-mid tc">{message}</span>
     </div>
   );

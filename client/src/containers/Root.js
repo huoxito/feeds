@@ -3,37 +3,40 @@ import { connect } from "react-redux";
 import NProgress from "nprogress";
 
 import Placeholder from "./Placeholder";
-import Lists from "./Lists";
-import Header from "./Header";
-import Footer from "./Footer";
+import Wrapper from "./Wrapper";
 
 import { enqueueRequestEvents, fetchEvents, fetchSession } from "../actions";
 
-const mapStateToProps = ({ firstLoad, user, needsAuth }) => {
+const mapStateToProps = ({ user }) => {
   return {
-    firstLoad,
-    user,
-    needsAuth
+    user
   };
 };
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-class App extends Component {
+class Root extends Component {
   componentDidMount() {
     const { url } = this.props.match;
     this.props.dispatch(fetchSession(url));
+
+    if (url !== "/") {
+      this.props.dispatch(fetchEvents({ path: url }));
+    }
+
     return wait(3 * 1000).then(this.enqueueEvents());
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     const { match, user } = this.props;
     if (match.url === "/" && user === null) {
       return;
     }
 
-    NProgress.start();
-    this.props.dispatch(fetchEvents({ path: match.url, urlUpdated: true }));
+    if (prevProps.user !== user || prevProps.match.url !== match.url) {
+      NProgress.start();
+      this.props.dispatch(fetchEvents({ path: match.url, urlUpdated: true }));
+    }
   }
 
   enqueueEvents() {
@@ -54,21 +57,17 @@ class App extends Component {
   }
 
   render() {
-    const { match, firstLoad, user } = this.props;
-    if (firstLoad || (match.url === "/" && user === null)) {
+    const { match, user } = this.props;
+    if (match.url === "/" && user === null) {
       return <Placeholder path={match.url} />;
     }
 
     return (
       <div className="bg-washed-blue">
-        <div className="helvetica w-80-ns w-100 mh3-ns">
-          <Header />
-          <Lists path={match.url} />
-          <Footer path={match.url} />
-        </div>
+        <Wrapper path={match.url} />
       </div>
     );
   }
 }
 
-export default connect(mapStateToProps)(App);
+export default connect(mapStateToProps)(Root);
