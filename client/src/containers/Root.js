@@ -44,6 +44,7 @@ class Root extends Component {
     const { url } = this.props.match;
     this.props.dispatch(enqueueRequestEvents(url));
 
+    const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     return wait(time * 1000).then(() => {
       const { match, user } = this.props;
 
