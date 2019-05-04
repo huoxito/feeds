@@ -51,6 +51,9 @@ const eventAction = events => {
   if (events.type === "IssueCommentEvent") {
     return "commented on";
   }
+  if (events.type === "GollumEvent") {
+    return `${events.payload.pages[0].action} a wiki page in `;
+  }
   if (events.type === "CommitCommentEvent") {
     return "commented on";
   }
@@ -152,8 +155,18 @@ const Avatar = ({ actor }) => (
   </div>
 );
 
-const Header = ({ title }) => (
-  <h1 className="f4 fw3 mt1 mb1 lh-title">{title}</h1>
-);
+const Header = ({ title, link, linkText }) => {
+  const href = linkText && (
+    <a className="link blue" href={link}>
+      {linkText}
+    </a>
+  );
+
+  return (
+    <h1 className="f4 fw3 mt1 mb1 lh-title">
+      {title} {href}
+    </h1>
+  );
+};
 
 export { richContent, Summary, Avatar, Header };

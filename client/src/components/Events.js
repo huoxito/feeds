@@ -82,7 +82,18 @@ const IssuesEvent = ({ events }) => (
   </section>
 );
 
+const GollumEvent = ({ events }) => (
+  <section className="bg-white mt2 pa2">
+    {events.payload.pages.map(page => {
+      const action = page.action.charAt(0).toUpperCase() + page.action.slice(1);
+      const title = `${action} <a href=${page.html_url}>${page.title}</a>`;
+      return <Header title={action} link={page.html_url} linkText={page.title} />;
+    })}
+  </section>
+);
+
 const customs = {
+  GollumEvent,
   CommitCommentEvent,
   PushEvent,
   IssuesEvent,
