@@ -8,7 +8,6 @@ import appLogo from "../logo.png";
 import SignInButton from "../components/SignInButton";
 
 const trimSlashes = string => {
-  const value = string.trim();
   const [user, repo] = string.split("/");
 
   if (repo) {
